@@ -6,12 +6,20 @@ from flask import Flask, request, session, g, redirect, url_for, abort, render_t
 from flask.ext.sqlalchemy import SQLAlchemy
 
 # general app initialization and configuration
-    
+
+heroku = os.environ.get('HEROKU') == '1'
+
+if heroku:
+	db_uri = os.environ['DATABASE_URL']
+else:
+	db_uri = 'sqlite:///qbtool.db'
+
 app = Flask(__name__)
 app.config.update(dict(
-	SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
+	SQLALCHEMY_DATABASE_URI=db_uri,
     SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
-    PASSWORD='password'
+    PASSWORD='password',
+    DEBUG=True
 ))
 
 db = SQLAlchemy(app)
@@ -144,6 +152,3 @@ def logout():
 	session.pop('logged_in', None)
 	flash('Logged out')
 	return redirect(url_for('login'))
-
-if __name__ == '__main__':
-	app.run()
