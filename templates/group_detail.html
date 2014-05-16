@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}
+	: {{ group.name }}
+{% endblock %}
+
+{% block heading %}
+	<small>:</small> <a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a>
+{% endblock %}
+
+{% block body %}
+	<table class=group-table>
+		{% for entry in group.entries.all() %}
+			<tr>
+				<td><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></td>
+				<td>{{ entry.creator }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	
+	<br />
+	
+	<button id=new-button>Add new</button>
+	
+	<form action="{{ url_for('new_entry') }}" method=post id=new-entry style="display: none">
+		<input type=hidden value={{ group.id }} name=group_id /> <br/>
+		<input type=text size=30 name=title placeholder="Title" /> <br/>
+		<input type=text size=30 name=creator placeholder="Creator" /> <br/>
+		<textarea cols=30 rows=5 name=notes placeholder="Notes"></textarea> <br/>
+		<input type=submit value="Add">
+		<input type=button value="Cancel" id="cancel-button">
+	</form>
+	
+	<script type="text/javascript">
+		function switch_mode() {
+			$("#new-button").toggle();
+			$("#new-entry").toggle();
+		}
+		
+		$("#new-button").click(switch_mode);
+		$("#cancel-button").click(switch_mode);
+	</script>
+{% endblock %}

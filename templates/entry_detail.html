@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+	: {{ entry.title }}
+{% endblock %}
+
+{% block heading %}
+	<small>:</small> <a href="{{ url_for('group_detail', group_id=entry.group.id) }}">{{ entry.group.name }}</a>
+{% endblock %}
+
+{% block body %}
+	<div id=entry-info>
+		<h2>{{ entry.title }}</h2>
+		<h3>{{ entry.creator }}</h2>
+		<pre class=notes>{{ entry.notes }}</pre>
+	</div>
+
+	<button id="edit-button">Edit</button>
+
+	<form action="{{ url_for('edit_entry', entry_id=entry.id) }}" method="POST" id=edit-form style="display: none">
+		<input type=text size=30 name=title placeholder="Title" value="{{ entry.title }}" /> <br />
+		<input type=text size=30 name=creator placeholder="Creator" value="{{ entry.creator }}" /> <br />
+		<textarea cols=30 rows=5 name=notes placeholder="Notes">{{ entry.notes }}</textarea> <br />
+		<input type=submit value="Save" />
+		<input type=button value="Cancel" id="cancel-button" />
+	</form>
+
+	<script type="text/javascript">
+		function switch_mode() {
+			$("#edit-button").toggle();
+			$("#edit-form").toggle();
+			$("#entry-info").toggle();
+		}
+
+		$("#edit-button").click(switch_mode);
+		$("#cancel-button").click(switch_mode);
+	</script>
+{% endblock %}
