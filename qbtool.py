@@ -1,4 +1,4 @@
-import os
+import os, hashlib
 
 from datetime import date
 from functools import wraps
@@ -18,8 +18,7 @@ app = Flask(__name__)
 app.config.update(dict(
 	SQLALCHEMY_DATABASE_URI=db_uri,
     SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
-    PASSWORD='password',
-    DEBUG=True
+    PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f'
 ))
 
 db = SQLAlchemy(app)
@@ -139,7 +138,7 @@ def edit_entry(entry_id):
 def login():
 	err = None
 	if request.method == 'POST':
-		if request.form['password'] != app.config['PASSWORD']:
+		if hashlib.sha224(request.form['password']).hexdigest() != app.config['PASSWORD_HASH']:
 			err = 'Wrong password!'
 		else:
 			session['logged_in'] = True
@@ -152,3 +151,6 @@ def logout():
 	session.pop('logged_in', None)
 	flash('Logged out')
 	return redirect(url_for('login'))
+	
+if __name__ == "__main__":
+	app.run(debug=True, host="0.0.0.0")

@@ -1,31 +1,41 @@
 {% extends "layout.html" %}
+
 {% block title %}
 	: {{ group.name }}
 {% endblock %}
 
 {% block heading %}
-	<small>:</small> <a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a>
+	: <span><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></span>
 {% endblock %}
 
 {% block body %}
-	<table class=group-table>
-		{% for entry in group.entries.all() %}
+	<table data-role="table" data-filter="true" class="ui-responsive">
+		<thead>
 			<tr>
-				<td><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></td>
-				<td>{{ entry.creator }}</td>
+				<th data-priority="1">Title</th>
+				<th data-priority="2">Creator</th>
 			</tr>
-		{% endfor %}
+		</thead>
+		
+		<tbody>
+			{% for entry in group.entries.all() %}
+				<tr>
+					<td><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></td>
+					<td>{{ entry.creator }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
 	</table>
 	
 	<br />
 	
 	<button id=new-button>Add new</button>
 	
-	<form action="{{ url_for('new_entry') }}" method=post id=new-entry style="display: none">
-		<input type=hidden value={{ group.id }} name=group_id /> <br/>
-		<input type=text size=30 name=title placeholder="Title" /> <br/>
-		<input type=text size=30 name=creator placeholder="Creator" /> <br/>
-		<textarea cols=30 rows=5 name=notes placeholder="Notes"></textarea> <br/>
+	<form action="{{ url_for('new_entry') }}" method=post id=new-entry style="display: none" data-ajax="false">
+		<input type=hidden value={{ group.id }} name=group_id />
+		<input type=text size=30 name=title placeholder="Title" />
+		<input type=text size=30 name=creator placeholder="Creator" />
+		<textarea cols=30 rows=5 name=notes placeholder="Notes"></textarea>
 		<input type=submit value="Add">
 		<input type=button value="Cancel" id="cancel-button">
 	</form>

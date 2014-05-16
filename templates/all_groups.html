@@ -1,12 +1,13 @@
 {% extends "layout.html" %}
+
 {% block body %}
-	<ul>
+	<ul data-role="listview">
 		{% for group in groups %}
 			<li><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
 		{% endfor %}
 	</ul>
 	
-	<form action="{{ url_for('new_group') }}" method=post id=new-group>
+	<form action="{{ url_for('new_group') }}" method=post data-ajax="false">
 		Add new: <input type=text size=30 name=name placeholder="Name">
 		<input type=submit value="Create">
 	</form>
