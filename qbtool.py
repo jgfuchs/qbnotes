@@ -8,11 +8,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 # general app initialization and configuration
     
 app = Flask(__name__)
-app.config.from_object(__name__)
-
 app.config.update(dict(
-	SQLALCHEMY_DATABASE_URI='sqlite:///qbtool.db',
-    DEBUG=True,
+	SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
     SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
     PASSWORD='password'
 ))
