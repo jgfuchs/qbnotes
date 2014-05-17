@@ -1,28 +1,30 @@
 <!doctype html>
 
 <head>
-	<title>QB-Tool {% block title %}{% endblock %}</title>
+	<title>QB-Tool</title>
+	
 	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 	
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css" />
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>	
 </head>
 
 <body>
-	<div data-role="page">
-		<div data-role="header" style="text-align: center">
-			<span><a href="/">QB-Tool</a></span>
-			{% block heading %}{% endblock %}
+	<div data-role="page" id="{% block page_id %}{% endblock %}">
+		<div data-role="header">
+			<h1><a href="{{ url_for('all_groups') }}" data-ajax="false">QB-Tool</a></h1>
 		</div>
 		
 		<div role="main" class="ui-content">
 			{% block body %}{% endblock %}
 		</div>
 		
-		<div data-role="footer" style="text-align: center; font-size: 80%;">
-			<span >v0.2</small>
+		<div data-role="footer" style="font-size: 80%;">
+			<h4>v0.2.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ url_for('logout') }}" data-ajax="false">Logout</a></h4>
 		</div>
 	</div>
+	
+	{% block other_pages %}{% endblock %}
 </body>

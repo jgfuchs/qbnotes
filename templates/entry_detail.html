@@ -1,10 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %} : {{ entry.title }} {% endblock %}
-
-{% block heading %}
-	: <span><a href="{{ url_for('group_detail', group_id=entry.group.id) }}">{{ entry.group.name }}</a></span>
-{% endblock %}
+{% block page_id %}entry-{{entry.id}}{% endblock %}
 
 {% block body %}
 	<div id=entry-info>
@@ -13,24 +9,25 @@
 		<div>{{ entry.notes }}</div>
 	</div>
 
-	<button id="edit-button">Edit</button>
+	<fieldset class="ui-grid-a">
+		<div class="ui-block-a"><a data-role="button" data-icon="arrow-l" href="{{ url_for('group_detail', group_id=entry.group.id) }}" data-ajax="false">Back</a></div>
+		<div class="ui-block-b"><a data-role="button" data-icon="edit" href="#edit-entry-{{entry.id}}">Edit</a></div>
+	</fieldset>
 
-	<form action="{{ url_for('edit_entry', entry_id=entry.id) }}" method="POST" id=edit-form style="display: none" data-ajax="false">
-		<input type=text size=30 name=title placeholder="Title" value="{{ entry.title }}" />
-		<input type=text size=30 name=creator placeholder="Creator" value="{{ entry.creator }}" />
-		<textarea cols=30 rows=5 name=notes placeholder="Notes">{{ entry.notes }}</textarea>
-		<input type=submit value="Save" />
-		<input type=button value="Cancel" id="cancel-button" />
-	</form>
+{% endblock %}
 
-	<script type="text/javascript">
-		function switch_mode() {
-			$("#edit-button").toggle();
-			$("#edit-form").toggle();
-			$("#entry-info").toggle();
-		}
-
-		$("#edit-button").click(switch_mode);
-		$("#cancel-button").click(switch_mode);
-	</script>
+{% block other_pages %}
+	<div data-role="page" id="edit-entry-{{entry.id}}">
+		<div role="main" class="ui-content">
+			<form action="{{ url_for('edit_entry', entry_id=entry.id) }}" method="POST" data-ajax="false">
+				<input type=text name=title placeholder="Title" value="{{ entry.title }}" />
+				<input type=text name=creator placeholder="Creator" value="{{ entry.creator }}" />
+				<textarea name=notes placeholder="Notes">{{ entry.notes }}</textarea>
+				<fieldset class="ui-grid-a">
+					<div class="ui-block-a"><a data-role="button" data-icon="delete" href="#entry-{{entry.id}}" data-rel="back">Cancel</a></div>
+					<div class="ui-block-b"><input data-role="button" data-icon="check" type=submit value="Save" /></div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
 {% endblock %}

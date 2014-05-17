@@ -1,12 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}
-	: {{ group.name }}
-{% endblock %}
-
-{% block heading %}
-	: <span><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></span>
-{% endblock %}
+{% block page_id %}group-{{group.id}}{% endblock %}
 
 {% block body %}
 	<table data-role="table" data-filter="true" class="ui-responsive">
@@ -18,35 +12,35 @@
 		</thead>
 		
 		<tbody>
-			{% for entry in group.entries.all() %}
+			{% for entry in group.entries.order_by("entry.creator").all() %}
 				<tr>
-					<td><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></td>
+					<th><a href="{{ url_for('entry_detail', entry_id=entry.id) }}" data-ajax="false" >{{ entry.title }}</a></th>
 					<td>{{ entry.creator }}</td>
 				</tr>
 			{% endfor %}
 		</tbody>
 	</table>
 	
-	<br />
-	
-	<button id=new-button>Add new</button>
-	
-	<form action="{{ url_for('new_entry') }}" method=post id=new-entry style="display: none" data-ajax="false">
-		<input type=hidden value={{ group.id }} name=group_id />
-		<input type=text size=30 name=title placeholder="Title" />
-		<input type=text size=30 name=creator placeholder="Creator" />
-		<textarea cols=30 rows=5 name=notes placeholder="Notes"></textarea>
-		<input type=submit value="Add">
-		<input type=button value="Cancel" id="cancel-button">
-	</form>
-	
-	<script type="text/javascript">
-		function switch_mode() {
-			$("#new-button").toggle();
-			$("#new-entry").toggle();
-		}
-		
-		$("#new-button").click(switch_mode);
-		$("#cancel-button").click(switch_mode);
-	</script>
+	<fieldset class="ui-grid-a">
+		<div class="ui-block-a"><a data-role="button" data-icon="arrow-l" href="{{ url_for('all_groups') }}" data-ajax="false" >Back</a></div>
+		<div class="ui-block-b"><a data-role="button" data-icon="plus" href="#new-entry-{{group.id}}">Add new</a></div>
+	</fieldset>
+{% endblock %}
+
+{% block other_pages %}
+	<div data-role="page" id="new-entry-{{group.id}}">
+		<div role="main" class="ui-content">
+			<form action="{{ url_for('new_entry') }}" method=post data-ajax="false">
+				<input type="hidden" value="{{ group.id }}" name=group_id />
+				<input type="text" name="title" placeholder="Title" />
+				<input type="text" name="creator" placeholder="Creator" />
+				<textarea name="notes" placeholder="Notes"></textarea>
+
+				<fieldset class="ui-grid-a">
+					<div class="ui-block-a"><a data-role="button" data-icon="delete" href="#group-{{group.id}}">Cancel</a></div>
+					<div class="ui-block-b"><input data-role="button" data-icon="check" type=submit value="Add"></div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
 {% endblock %}

@@ -1,14 +1,29 @@
 {% extends "layout.html" %}
 
+{% block page_id %}all-groups{% endblock %}
+
 {% block body %}
 	<ul data-role="listview">
 		{% for group in groups %}
-			<li><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
+			<li><a data-ajax="false" href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
 		{% endfor %}
 	</ul>
 	
-	<form action="{{ url_for('new_group') }}" method=post data-ajax="false">
-		Add new: <input type=text size=30 name=name placeholder="Name">
-		<input type=submit value="Create">
-	</form>
+	<br/>	
+	<a data-role="button" data-icon="plus" href="#new-group">Add new</a>
+{% endblock %}
+
+{% block other_pages %}
+	<div data-role="page" data-dialog="true" id="new-group">
+		<div role="main" class="ui-content">
+			<h2>New Group</h2>
+			<form action="{{ url_for('new_group') }}" method="post" data-ajax="false">
+				<input type="text" name="name" placeholder="Title">
+				<fieldset class="ui-grid-a">
+					<div class="ui-block-a"><a data-role="button" data-icon="delete" href="#all-groups" data-rel="back">Cancel</a></div>
+					<div class="ui-block-b"><input data-role="button" data-icon="check" type="submit" value="Create"></div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
 {% endblock %}
