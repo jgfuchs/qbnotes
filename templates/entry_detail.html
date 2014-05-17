@@ -6,9 +6,9 @@
 	<div id=entry-info>
 		<h2>{{ entry.title }}</h2>
 		<h3>{{ entry.creator }}</h2>
-		<div>{{ entry.notes }}</div>
+		<div>{{ entry.notes | replace("\n", "<br/>") | safe }}</div>
 	</div>
-
+	<br />
 	<fieldset class="ui-grid-a">
 		<div class="ui-block-a"><a data-role="button" data-icon="arrow-l" href="{{ url_for('group_detail', group_id=entry.group.id) }}" data-ajax="false">Back</a></div>
 		<div class="ui-block-b"><a data-role="button" data-icon="edit" href="#edit-entry-{{entry.id}}">Edit</a></div>
