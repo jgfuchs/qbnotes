@@ -4,6 +4,7 @@ from datetime import date
 from functools import wraps
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from flask.ext.sqlalchemy import SQLAlchemy
+from flaskext.markdown import Markdown
 
 # general app initialization and configuration
 
@@ -21,6 +22,7 @@ app.config.update(dict(
     PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f'
 ))
 
+Markdown(app)
 db = SQLAlchemy(app)
 
 class Group(db.Model):
