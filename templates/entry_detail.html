@@ -11,7 +11,7 @@
 	<br />
 	<fieldset class="ui-grid-a">
 		<div class="ui-block-a"><a data-role="button" data-icon="arrow-l" href="{{ url_for('group_detail', group_id=entry.group.id) }}" data-ajax="false">Back</a></div>
-		<div class="ui-block-b"><a data-role="button" data-icon="edit" href="#edit-entry-{{entry.id}}">Edit</a></div>
+		<div class="ui-block-b"><a data-role="button" data-icon="edit" href="#edit-entry-{{entry.id}}" accesskey="e">Edit</a></div>
 	</fieldset>
 
 {% endblock %}
@@ -25,7 +25,7 @@
 				<textarea name=notes placeholder="Notes">{{ entry.notes }}</textarea>
 				<fieldset class="ui-grid-a">
 					<div class="ui-block-a"><a data-role="button" data-icon="delete" href="#entry-{{entry.id}}" data-rel="back">Cancel</a></div>
-					<div class="ui-block-b"><input data-role="button" data-icon="check" type=submit value="Save" /></div>
+					<div class="ui-block-b"><input data-role="button" data-icon="check" type=submit value="Save" accesskey="s"/></div>
 				</fieldset>
 			</form>
 		</div>

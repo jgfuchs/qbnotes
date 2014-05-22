@@ -23,7 +23,7 @@
 	
 	<fieldset class="ui-grid-a">
 		<div class="ui-block-a"><a data-role="button" data-icon="arrow-l" href="{{ url_for('all_groups') }}" data-ajax="false" >Back</a></div>
-		<div class="ui-block-b"><a data-role="button" data-icon="plus" href="#new-entry-{{group.id}}">Add new</a></div>
+		<div class="ui-block-b"><a data-role="button" data-icon="plus" href="#new-entry-{{group.id}}" accesskey="n">Add new</a></div>
 	</fieldset>
 {% endblock %}
 
@@ -38,7 +38,7 @@
 
 				<fieldset class="ui-grid-a">
 					<div class="ui-block-a"><a data-role="button" data-icon="delete" href="#group-{{group.id}}">Cancel</a></div>
-					<div class="ui-block-b"><input data-role="button" data-icon="check" type=submit value="Add"></div>
+					<div class="ui-block-b"><input data-role="button" data-icon="check" type=submit value="Add" accesskey="a"></div>
 				</fieldset>
 			</form>
 		</div>
