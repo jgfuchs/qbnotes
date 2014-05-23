@@ -116,7 +116,7 @@ def new_entry():
 	db.session.add(e)
 	db.session.commit()
 
-	return redirect(url_for('group_detail', group_id=g.id))
+	return redirect(url_for('entry_detail', entry_id=e.id))
 
 @app.route('/edit_entry/<int:entry_id>', methods=['POST'])
 def edit_entry(entry_id):
