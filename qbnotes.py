@@ -22,7 +22,7 @@ app.config.update(dict(
     
     PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f',
     
-    version='0.2.3'
+    version='0.3'
 ))
 
 Markdown(app)
