@@ -1,2 +1,2 @@
-from qbtool import db
+from qbnotes import db
 db.create_all()

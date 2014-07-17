@@ -1,16 +1,21 @@
 {% extends "layout.html" %}
 
-{% block page_id %}group-{{group.id}}{% endblock %}
+{% block title %}{{ group.name }}{% endblock %}
 
 {% block body %}
-	<table data-role="table" data-filter="true" class="ui-responsive">
+	<ol class="breadcrumb">
+		<li><a href="{{ url_for('all_groups') }}">Groups</a></li>
+		<li class="active">{{ group.name }}</li>
+	</ol>
+	
+	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th data-priority="1">Title</th>
-				<th data-priority="2">Creator</th>
+				<th>Title</th>
+				<th>Creator</th>
 			</tr>
 		</thead>
-		
+	
 		<tbody>
 			{% for entry in group.entries.order_by("entry.creator").all() %}
 				<tr>
@@ -21,26 +26,7 @@
 		</tbody>
 	</table>
 	
-	<fieldset class="ui-grid-a">
-		<div class="ui-block-a"><a data-role="button" data-icon="arrow-l" href="{{ url_for('all_groups') }}" data-ajax="false" >Back</a></div>
-		<div class="ui-block-b"><a data-role="button" data-icon="plus" href="#new-entry-{{group.id}}" accesskey="n">Add new</a></div>
-	</fieldset>
-{% endblock %}
-
-{% block other_pages %}
-	<div data-role="page" id="new-entry-{{group.id}}">
-		<div role="main" class="ui-content">
-			<form action="{{ url_for('new_entry') }}" method=post data-ajax="false">
-				<input type="hidden" value="{{ group.id }}" name=group_id />
-				<input type="text" name="title" placeholder="Title" />
-				<input type="text" name="creator" placeholder="Creator" />
-				<textarea name="notes" placeholder="Notes"></textarea>
-
-				<fieldset class="ui-grid-a">
-					<div class="ui-block-a"><a data-role="button" data-icon="delete" href="#group-{{group.id}}">Cancel</a></div>
-					<div class="ui-block-b"><input data-role="button" data-icon="check" type=submit value="Add" accesskey="a"></div>
-				</fieldset>
-			</form>
-		</div>
-	</div>
+	<a class="btn btn-default pull-right" accesskey="n" href="{{ url_for('new_entry', group_id=group.id) }}">
+		<span class="glyphicon glyphicon-plus"></span> New entry
+	</a>
 {% endblock %}

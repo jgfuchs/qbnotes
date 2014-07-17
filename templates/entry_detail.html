@@ -1,33 +1,24 @@
 {% extends "layout.html" %}
 
-{% block page_id %}entry-{{entry.id}}{% endblock %}
+{% block title %}{{ entry.title }}{% endblock %}
 
 {% block body %}
-	<div id=entry-info>
-		<h2>{{ entry.title }}</h2>
-		<h3>{{ entry.creator }}</h2>
-		<div>{% filter markdown %}{{ entry.notes | safe }}{% endfilter %}</div>
-	</div>
-	<br />
-	<fieldset class="ui-grid-a">
-		<div class="ui-block-a"><a data-role="button" data-icon="arrow-l" href="{{ url_for('group_detail', group_id=entry.group.id) }}" data-ajax="false">Back</a></div>
-		<div class="ui-block-b"><a data-role="button" data-icon="edit" href="#edit-entry-{{entry.id}}" accesskey="e">Edit</a></div>
-	</fieldset>
-
-{% endblock %}
-
-{% block other_pages %}
-	<div data-role="page" id="edit-entry-{{entry.id}}">
-		<div role="main" class="ui-content">
-			<form action="{{ url_for('edit_entry', entry_id=entry.id) }}" method="POST" data-ajax="false">
-				<input type=text name=title placeholder="Title" value="{{ entry.title }}" />
-				<input type=text name=creator placeholder="Creator" value="{{ entry.creator }}" />
-				<textarea name=notes placeholder="Notes">{{ entry.notes }}</textarea>
-				<fieldset class="ui-grid-a">
-					<div class="ui-block-a"><a data-role="button" data-icon="delete" href="#entry-{{entry.id}}" data-rel="back">Cancel</a></div>
-					<div class="ui-block-b"><input data-role="button" data-icon="check" type=submit value="Save" accesskey="s"/></div>
-				</fieldset>
-			</form>
+	<ol class="breadcrumb">
+		<li><a href="{{ url_for('all_groups') }}">Groups</a></li>
+		<li><a href="{{ url_for('group_detail', group_id=entry.group.id) }}">{{ entry.group.name }}</a></li>
+		<li class="active">{{ entry.title }}</li>
+	</ol>
+	
+	<div class="h2">{{ entry.title }}</div>
+	<div class="h3">{{ entry.creator }}</div>
+	
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<p>{% filter markdown %}{{ entry.notes | safe }}{% endfilter %}</p>
 		</div>
 	</div>
+
+	<a class="btn btn-default pull-right" accesskey="e" href="{{ url_for('edit_entry', entry_id=entry.id) }}">
+		<span class="glyphicon glyphicon-pencil"></span> Edit
+	</a>
 {% endblock %}

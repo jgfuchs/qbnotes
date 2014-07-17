@@ -1,29 +1,55 @@
 {% extends "layout.html" %}
 
-{% block page_id %}all-groups{% endblock %}
+{% block title %}QB-Notes{% endblock %}
 
 {% block body %}
-	<ul data-role="listview">
-		{% for group in groups %}
-			<li><a data-ajax="false" href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
-		{% endfor %}
-	</ul>
+	<ol class="breadcrumb">
+		<li class="active">Groups</li>
+	</ol>
 	
-	<br/>	
-	<a data-role="button" data-icon="plus" href="#new-group">Add new</a>
-{% endblock %}
-
-{% block other_pages %}
-	<div data-role="page" data-dialog="true" id="new-group">
-		<div role="main" class="ui-content">
-			<h2>New Group</h2>
-			<form action="{{ url_for('new_group') }}" method="post" data-ajax="false">
-				<input type="text" name="name" placeholder="Title">
-				<fieldset class="ui-grid-a">
-					<div class="ui-block-a"><a data-role="button" data-icon="delete" href="#all-groups" data-rel="back">Cancel</a></div>
-					<div class="ui-block-b"><input data-role="button" data-icon="check" type="submit" value="Create"></div>
-				</fieldset>
-			</form>
+	<div class="list-group">
+		{% for group in groups %}
+			<a class="list-group-item" href="{{ url_for('group_detail', group_id=group.id) }}">
+				<strong>{{ group.name }}</strong>
+				<span class="badge">{{ group.entries.count() }}</span>
+			</a>
+		{% endfor %}
+	</div>
+	
+	<br/>
+	
+	<button class="btn btn-default pull-right" accesskey="n" data-toggle="modal" data-target="#new-group">
+		<span class="glyphicon glyphicon-plus"></span>
+		New group
+	</button>
+	
+	<div class="modal" id="new-group" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="h4 modal-title">New group</span>
+				</div>
+				
+				<div class="modal-body">
+					<form role="form" action="{{ url_for('new_group') }}" method="post">
+						<div class="form-group">
+							<label>Name</label>
+							<input type="text" class="form-control" name="name" autofocus required></input>
+						</div>
+					
+						<button type="submit" class="btn btn-success">
+							<span class="glyphicon glyphicon-ok"></span>
+							Create
+						</button>
+	
+						<button type="button" class="btn btn-danger" data-dismiss="modal">
+							<span class="glyphicon glyphicon-remove"></span>
+							Cancel
+						</button>
+					</form>
+				</div>
+				
+			</div>
 		</div>
 	</div>
 {% endblock %}
