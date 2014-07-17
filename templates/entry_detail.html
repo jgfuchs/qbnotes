@@ -4,7 +4,7 @@
 
 {% block body %}
 	<ol class="breadcrumb">
-		<li><a href="{{ url_for('all_groups') }}">Groups</a></li>
+		<li><a href="{{ url_for('all_groups') }}">Home</a></li>
 		<li><a href="{{ url_for('group_detail', group_id=entry.group.id) }}">{{ entry.group.name }}</a></li>
 		<li class="active">{{ entry.title }}</li>
 	</ol>
