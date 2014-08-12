@@ -2,6 +2,10 @@
 
 {% set page_title='Editing: '+ entry.title %}
 
+{% block head %}
+	<script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
+{% endblock %}
+
 {% block body %}
 	<ol class="breadcrumb">
 		<li><a href="{{ url_for('all_groups') }}">Home</a></li>
@@ -23,19 +27,43 @@
 
 		<div class="form-group">
 			<label>Notes</label>
-			<textarea class="form-control" name="notes" rows="10" required autofocus>{{ entry.notes }}</textarea>
+			<textarea class="form-control" name="notes" rows="10" id="notes-input" required autofocus>{{ entry.notes }}</textarea>
+		</div>
+		
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div id="preview-area"></div>
+			</div>
 		</div>
 
-		<button type="submit" class="btn btn-success" accesskey="s">
+		<button type="submit" class="btn btn-success" accesskey="s" title="Save (Alt-s)">
 			<span class="glyphicon glyphicon-ok"></span>
 			Save
 		</button>
 
-		<a class="btn btn-danger" href="{{ url_for('entry_detail', entry_id=entry.id) }}">
+		<a class="btn btn-danger" href="{{ url_for('entry_detail', entry_id=entry.id) }}" title="Cancel (Alt-x)" accesskey="x">
 			<span class="glyphicon glyphicon-remove"></span>
 			Cancel
 		</a>
-
 	</form>
 {% endblock %}
 
+{% block script %}
+	<script>
+		tout = null;
+		
+		$("#notes-input").bind("input propertychange", function(e) {
+			if (tout) {
+				clearTimeout(tout);
+			}
+			
+			tout = setTimeout(renderMarkdown, 1000);
+		});
+		
+		function renderMarkdown() {
+			$("#preview-area").html(marked($("#notes-input").val()));
+		}
+		
+		renderMarkdown();
+	</script>
+{% endblock %}

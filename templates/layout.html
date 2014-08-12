@@ -2,14 +2,14 @@
 
 <head>
 	<title>{{ page_title }}</title>
-	
+
 	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-	
+
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 	<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-	
+
 	{% block head %}{% endblock %}
 </head>
 
@@ -17,7 +17,10 @@
 	<div class="container" role="main">
 		{% block body %}{% endblock %}
 	</div>
-	
+
 	<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>		
+	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+	
+	{% block script %}{% endblock %}
 </body>
+
