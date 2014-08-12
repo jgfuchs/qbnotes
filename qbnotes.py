@@ -22,7 +22,7 @@ app.config.update(dict(
     
     PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f',
     
-    version='0.3'
+    version='0.3.2'
 ))
 
 Markdown(app)
@@ -70,7 +70,6 @@ def login_required(f):
 # main app pages
 
 @app.route('/')
-@app.route('/index')
 @login_required
 def all_groups():
 	groups = Group.query.all()

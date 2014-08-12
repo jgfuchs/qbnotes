@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}{{ group.name }}{% endblock %}
+{% set page_title=group.name %}
 
 {% block body %}
 	<ol class="breadcrumb">
@@ -17,7 +17,7 @@
 		</thead>
 	
 		<tbody>
-			{% for entry in group.entries.order_by("entry.creator").all() %}
+			{% for entry in group.entries.order_by("entry.creator", "entry.title").all() %}
 				<tr>
 					<th><a href="{{ url_for('entry_detail', entry_id=entry.id) }}" data-ajax="false" >{{ entry.title }}</a></th>
 					<td>{{ entry.creator }}</td>
