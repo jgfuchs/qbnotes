@@ -1,8 +1,9 @@
 import os, hashlib
-
+import json
 from datetime import date
 from functools import wraps
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, Response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.markdown import Markdown
 
@@ -154,6 +155,20 @@ def login():
 def logout():
 	session['logged_in'] = False
 	return redirect(url_for('login'))
+	
+@app.route('/download')
+@login_required
+def download():
+	obj = {}
+	for g in Group.query.all():
+		obj[g.name] = {}
+		for e in g.entries.all():
+			obj[g.name][e.title] = {
+				'creator': e.creator,
+				'notes': e.notes,
+				'date': str(e.date_added)}
+		
+	return Response(json.dumps(obj, indent=4, separators=(',', ': ')), mimetype='text/json')
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True)
