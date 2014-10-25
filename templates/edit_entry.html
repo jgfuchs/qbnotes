@@ -36,15 +36,15 @@
 			</div>
 		</div>
 
-		<button type="submit" class="btn btn-success" accesskey="s" title="Save (Alt-s)">
-			<span class="glyphicon glyphicon-ok"></span>
-			Save
-		</button>
-
-		<a class="btn btn-danger" href="{{ url_for('entry_detail', entry_id=entry.id) }}" title="Cancel (Alt-x)" accesskey="x">
+        <a class="btn btn-danger" href="{{ url_for('entry_detail', entry_id=entry.id) }}" title="Cancel (Alt-x)" accesskey="x">
 			<span class="glyphicon glyphicon-remove"></span>
 			Cancel
 		</a>
+
+		<button type="submit" class="btn btn-success pull-right" accesskey="s" title="Save (Alt-s)">
+			<span class="glyphicon glyphicon-ok"></span>
+			Save
+		</button>
 	</form>
 {% endblock %}
 

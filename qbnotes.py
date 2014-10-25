@@ -1,11 +1,14 @@
-import os, hashlib
+import os
+import hashlib
 import json
+import random
 from datetime import date
 from functools import wraps
 
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, Response
+from flask import Flask, request, session, redirect, url_for, abort, render_template, Response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.markdown import Markdown
+from sqlalchemy.sql.expression import func, select
 
 # general app initialization and configuration
 
@@ -19,15 +22,16 @@ else:
 app = Flask(__name__)
 app.config.update(dict(
 	SQLALCHEMY_DATABASE_URI=db_uri,
-    SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
-    
-    PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f',
-    
-    version='0.3.2'
+	SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
+
+	PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f',
+
+	version='0.3.2'
 ))
 
 Markdown(app)
 db = SQLAlchemy(app)
+
 
 class Group(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +41,8 @@ class Group(db.Model):
 		self.name = name
 
 	def __repr__(self):
-		return '<Group %s>' % (self.name)
+		return '<Group %s>' % self.name
+
 
 class Entry(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -60,13 +65,16 @@ class Entry(db.Model):
 	def __repr__(self):
 		return '<Entry \'%s\'>' % self.title
 
+
 def login_required(f):
 	@wraps(f)
 	def decorated_function(*args, **kwargs):
 		if not session.get('logged_in'):
 			return redirect(url_for('login'))
 		return f(*args, **kwargs)
+
 	return decorated_function
+
 
 # main app pages
 
@@ -76,17 +84,20 @@ def all_groups():
 	groups = Group.query.all()
 	return render_template('all_groups.html', groups=groups)
 
-@app.route('/group/<int:group_id>')
+
+@app.route('/group/<int:group_id>/')
 @login_required
 def group_detail(group_id):
 	group = Group.query.get_or_404(group_id)
 	return render_template('group_detail.html', group=group)
+
 
 @app.route('/entry/<int:entry_id>')
 @login_required
 def entry_detail(entry_id):
 	entry = Entry.query.get_or_404(entry_id)
 	return render_template('entry_detail.html', entry=entry)
+
 
 @app.route('/group/new', methods=['POST'])
 def new_group():
@@ -102,11 +113,12 @@ def new_group():
 
 	return redirect(url_for('all_groups'))
 
+
 @app.route('/group/<int:group_id>/new', methods=['GET', 'POST'])
 @login_required
 def new_entry(group_id):
 	g = Group.query.get_or_404(group_id)
-	
+
 	if request.method == 'POST':
 		if not (request.form['title'] and request.form['creator'] and request.form['notes']):
 			abort(400)
@@ -115,16 +127,17 @@ def new_entry(group_id):
 
 		db.session.add(e)
 		db.session.commit()
-	
+
 		return redirect(url_for('entry_detail', entry_id=e.id))
-	
+
 	return render_template('new_entry.html', group=g)
+
 
 @app.route('/entry/<int:entry_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_entry(entry_id):
 	e = Entry.query.get_or_404(entry_id)
-		
+
 	if request.method == 'POST':
 		if not (request.form['title'] and request.form['creator'] and request.form['notes']):
 			abort(400)
@@ -132,12 +145,13 @@ def edit_entry(entry_id):
 		e.title = request.form['title']
 		e.creator = request.form['creator']
 		e.notes = request.form['notes']
-		
+
 		db.session.commit()
-	
+
 		return redirect(url_for('entry_detail', entry_id=e.id))
-	
+
 	return render_template('edit_entry.html', entry=e)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -148,14 +162,36 @@ def login():
 			return redirect(url_for('all_groups'))
 		else:
 			error = 'Wrong password!'
-			
+
 	return render_template('login.html', error=error)
+
+
+@app.route('/group/<int:group_id>/study/', methods=['GET'])
+def study(group_id):
+	return render_template('study.html', group=Group.query.get_or_404(group_id))
+
+
+@app.route('/group/<int:group_id>/study/q')
+def get_questions(group_id):
+	contents = []
+
+	for e in Entry.query.filter_by(group_id=group_id).order_by(func.random()).limit(10).all():
+		lines = e.notes.split('---')[0].split('\n')
+		for i in xrange(0, 10):
+			line = random.choice(lines)
+			if (len(line) > 20) or ('**' in line):
+				contents.append({'id': e.id, 'title': e.title, 'creator': e.creator, 'clue': line})
+				break
+
+	return json.dumps(contents)
+
 
 @app.route('/logout')
 def logout():
 	session['logged_in'] = False
 	return redirect(url_for('login'))
-	
+
+
 @app.route('/download')
 @login_required
 def download():
@@ -164,12 +200,12 @@ def download():
 		obj[g.name] = {}
 		for e in g.entries.all():
 			obj[g.name][e.title] = {
-				'creator': e.creator,
-				'notes': e.notes,
-				'date': str(e.date_added)}
-		
+			'creator': e.creator,
+			'notes': e.notes,
+			'date': str(e.date_added)}
+
 	return Response(json.dumps(obj, indent=4, separators=(',', ': ')), mimetype='text/json')
+
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', debug=True, port=5001)
-

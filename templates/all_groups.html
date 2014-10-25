@@ -3,57 +3,57 @@
 {% set page_title='QB-Notes' %}
 
 {% block body %}
-	<ol class="breadcrumb">
-		<li class="active">Home</li>
-	</ol>
-	
-	<div class="list-group">
-		{% for group in groups %}
-			<a class="list-group-item" href="{{ url_for('group_detail', group_id=group.id) }}">
-				<strong>{{ group.name }}</strong>
-				<span class="badge">{{ group.entries.count() }}</span>
-			</a>
-		{% endfor %}
-	</div>
-	
-	<br/>
-	
-	<button class="btn btn-default" accesskey="n" data-toggle="modal" data-target="#new-group">
-		<span class="glyphicon glyphicon-plus"></span>
-		New group
-	</button>
-	
-	<a class="btn btn-default pull-right" href="{{ url_for('download') }}">
-		<span class="glyphicon glyphicon-cloud-download"></span>
-	</a>
-	
-	<div class="modal" id="new-group" tabindex="-1" role="dialog">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<span class="h4 modal-title">New group</span>
-				</div>
-				
-				<div class="modal-body">
-					<form role="form" action="{{ url_for('new_group') }}" method="post">
-						<div class="form-group">
-							<label>Name</label>
-							<input type="text" class="form-control" name="name" autofocus required></input>
-						</div>
-					
-						<button type="submit" class="btn btn-success">
-							<span class="glyphicon glyphicon-ok"></span>
-							Create
-						</button>
-	
-						<button type="button" class="btn btn-danger" data-dismiss="modal">
-							<span class="glyphicon glyphicon-remove"></span>
-							Cancel
-						</button>
-					</form>
-				</div>
-				
-			</div>
-		</div>
-	</div>
+    <ol class="breadcrumb">
+        <li class="active">Home</li>
+    </ol>
+
+    <div class="list-group">
+        {% for group in groups %}
+            <a class="list-group-item" href="{{ url_for('group_detail', group_id=group.id) }}">
+                <strong>{{ group.name }}</strong>
+                <span class="badge">{{ group.entries.count() }}</span>
+            </a>
+        {% endfor %}
+    </div>
+
+    <br/>
+
+    <button class="btn btn-default" accesskey="n" data-toggle="modal" data-target="#new-group">
+        <span class="glyphicon glyphicon-plus"></span>
+        New group
+    </button>
+
+    <a class="btn btn-default pull-right" href="{{ url_for('download') }}">
+        <span class="glyphicon glyphicon-cloud-download"></span>
+    </a>
+
+    <div class="modal" id="new-group" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="h4 modal-title">New group</span>
+                </div>
+
+                <div class="modal-body">
+                    <form role="form" action="{{ url_for('new_group') }}" method="post">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" class="form-control" name="name" autofocus required>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">
+                            <span class="glyphicon glyphicon-ok"></span>
+                            Create
+                        </button>
+
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                            Cancel
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
 {% endblock %}

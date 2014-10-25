@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+{% set page_title='Study mode' %}
+
+{% block body %}
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('all_groups') }}">Home</a></li>
+        <li><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
+        <li class="active">[Study]</li>
+    </ol>
+
+    <div class="well" id="clue">
+
+    </div>
+
+    <div class="h4 well" id="answer">
+        <a id="title"></a>
+
+        <div id="author"></div>
+    </div>
+
+    <button class="btn btn-default btn-block" id="btn"></button>
+
+{% endblock %}
+
+{% block head %}
+	<script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
+
+    <style>
+        html, body, .container {
+            height: 100%;
+        }
+
+        #clue {
+            height: 40%;
+        }
+
+        #answer {
+            height: 25%;
+            text-align: center;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block script %}
+    <script>
+        var qs = [];
+        var cur = null;
+        var neednew = true;
+
+        function get_questions() {
+            $.get('q', function (data) {
+                var newqs = JSON.parse(data);
+                if (qs.length == 0) {
+                    qs = newqs;
+                    on_click();
+                } else{
+                    qs = qs.concat(newqs);
+                }
+            });
+        }
+
+        function on_click() {
+            console.log("click");
+
+            if (neednew) {
+                cur = qs.shift();
+                $("#clue").html(marked(cur["clue"]));
+                $("#title").html("");
+                $("#author").html("");
+                $("#btn").html("Show answer");
+
+                if (qs.length == 1) {
+                    get_questions();
+                }
+            } else {
+                $("#title").html(cur["title"]).attr("href", "/entry/" + cur["id"]);
+                $("#author").html(cur["creator"]);
+                $("#btn").html("Next");
+            }
+
+            neednew = !neednew;
+        }
+
+        $("#btn").click(on_click);
+
+        get_questions();
+    </script>
+{% endblock %}
