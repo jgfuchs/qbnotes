@@ -13,18 +13,18 @@
 
     </div>
 
-    <div class="h4 well" id="answer">
+    <div id="answer">
         <a id="title"></a>
-
-        <div id="author"></div>
+        <br />
+        <span id="author"></span>
     </div>
 
-    <button class="btn btn-default btn-block" id="btn"></button>
+    <button class="btn btn-default btn-lg btn-block" id="btn"></button>
 
 {% endblock %}
 
 {% block head %}
-	<script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
 
     <style>
         html, body, .container {
@@ -33,6 +33,7 @@
 
         #clue {
             height: 40%;
+            font-size: 150%;
         }
 
         #answer {
@@ -40,6 +41,14 @@
             text-align: center;
             padding-top: 10px;
             padding-bottom: 10px;
+        }
+
+        #title {
+            font-size: 200%;
+        }
+
+        #author {
+            font-size: 175%;
         }
     </style>
 {% endblock %}
@@ -56,7 +65,7 @@
                 if (qs.length == 0) {
                     qs = newqs;
                     on_click();
-                } else{
+                } else {
                     qs = qs.concat(newqs);
                 }
             });

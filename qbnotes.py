@@ -23,9 +23,7 @@ app = Flask(__name__)
 app.config.update(dict(
 	SQLALCHEMY_DATABASE_URI=db_uri,
 	SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
-
 	PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f',
-
 	version='0.3.2'
 ))
 
@@ -178,7 +176,7 @@ def get_questions(group_id):
 	for e in Entry.query.filter_by(group_id=group_id).order_by(func.random()).limit(10).all():
 		lines = e.notes.split('---')[0].split('\n')
 		for i in xrange(0, 10):
-			line = random.choice(lines)
+			line = random.choice(lines).lstrip(' +')		# strip leading spaces & bullets
 			if (len(line) > 20) or ('**' in line):
 				contents.append({'id': e.id, 'title': e.title, 'creator': e.creator, 'clue': line})
 				break
