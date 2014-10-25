@@ -9,9 +9,7 @@
         <li class="active">[Study]</li>
     </ol>
 
-    <div class="well" id="clue">
-
-    </div>
+    <div class="well" id="clue"></div>
 
     <div id="answer">
         <a id="title"></a>
@@ -33,7 +31,8 @@
 
         #clue {
             height: 40%;
-            font-size: 150%;
+            font-size: 135%;
+            margin-bottom: 0px;
         }
 
         #answer {
@@ -72,8 +71,6 @@
         }
 
         function on_click() {
-            console.log("click");
-
             if (neednew) {
                 cur = qs.shift();
                 $("#clue").html(marked(cur["clue"]));
