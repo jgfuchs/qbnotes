@@ -202,7 +202,9 @@ def download():
 			'notes': e.notes,
 			'date': str(e.date_added)}
 
-	return Response(json.dumps(obj, indent=4, separators=(',', ': ')), mimetype='text/json')
+	return Response(json.dumps(obj, indent=4, separators=(',', ': ')),
+					mimetype='text/json',
+					headers={'Content-Disposition': 'inline; filename="qbnotes.json"'})
 
 
 if __name__ == '__main__':
