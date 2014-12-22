@@ -23,6 +23,11 @@
         New group
     </button>
 
+
+    <button class="btn btn-default pull-right" data-toggle="modal" data-target="#upload">
+        <span class="glyphicon glyphicon-cloud-upload"></span>
+    </button>
+
     <a class="btn btn-default pull-right" href="{{ url_for('download') }}">
         <span class="glyphicon glyphicon-cloud-download"></span>
     </a>
@@ -52,7 +57,36 @@
                         </button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="modal" id="upload" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="h4 modal-title">Upload notes</span>
+                </div>
+
+                <div class="modal-body">
+                    <form role="form" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" >
+                        <input type="file" name="file" class="form-control" />
+
+                        <br/>
+
+                        <button type="submit" class="btn btn-success pull-right">
+                            <span class="glyphicon glyphicon-ok"></span>
+                            Upload
+                        </button>
+
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span>
+                            Cancel
+                        </button>
+
+                        <br/>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

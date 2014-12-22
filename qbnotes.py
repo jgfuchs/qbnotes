@@ -17,7 +17,7 @@ heroku = os.environ.get('HEROKU') == '1'
 if heroku:
 	db_uri = os.environ['DATABASE_URL']
 else:
-	db_uri = 'sqlite:///db.sqlite3'
+	db_uri = 'postgres://127.0.0.1:5432/qbnotes'
 
 app = Flask(__name__)
 app.config.update(dict(
@@ -29,7 +29,6 @@ app.config.update(dict(
 
 Markdown(app)
 db = SQLAlchemy(app)
-
 
 class Group(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -164,6 +163,12 @@ def login():
 	return render_template('login.html', error=error)
 
 
+@app.route('/logout')
+def logout():
+	session['logged_in'] = False
+	return redirect(url_for('login'))
+
+
 @app.route('/group/<int:group_id>/study/', methods=['GET'])
 def study(group_id):
 	return render_template('study.html', group=Group.query.get_or_404(group_id))
@@ -176,18 +181,12 @@ def get_questions(group_id):
 	for e in Entry.query.filter_by(group_id=group_id).order_by(func.random()).limit(10).all():
 		lines = e.notes.split('---')[0].split('\n')
 		for i in xrange(0, 10):
-			line = random.choice(lines).lstrip(' +')		# strip leading spaces & bullets
+			line = random.choice(lines).lstrip(' +')  # strip leading spaces & bullets
 			if (len(line) > 20) or ('**' in line):
 				contents.append({'id': e.id, 'title': e.title, 'creator': e.creator, 'clue': line})
 				break
 
 	return json.dumps(contents)
-
-
-@app.route('/logout')
-def logout():
-	session['logged_in'] = False
-	return redirect(url_for('login'))
 
 
 @app.route('/download')
@@ -207,5 +206,34 @@ def download():
 					headers={'Content-Disposition': 'inline; filename="qbnotes.json"'})
 
 
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload():
+	if request.files['file']:
+		try:
+			doc = json.loads(request.files['file'].read())
+			for group_name in doc:
+				group = Group.query.filter(Group.name == group_name).first()
+				if not group:
+					group = Group(group_name)
+					db.session.add(group)
+
+				for title in doc[group_name]:
+					obj = doc[group_name][title]
+
+					entry = Entry.query.filter(Entry.title == title, Entry.creator == obj['creator']).first()
+					if not entry:
+						entry = Entry(title, obj['creator'], obj['notes'], group)
+						entry.date_added = obj['date']
+						db.session.add(entry)
+
+			db.session.commit()
+		except ValueError:
+			pass
+
+	return redirect(url_for('all_groups'))
+
+
 if __name__ == '__main__':
+	db.create_all()
 	app.run(host='0.0.0.0', debug=True, port=5001)
