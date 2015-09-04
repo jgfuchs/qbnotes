@@ -79,29 +79,24 @@ def login_required(f):
 @app.route('/')
 @login_required
 def all_groups():
-	groups = Group.query.all()
-	return render_template('all_groups.html', groups=groups)
+	return render_template('all_groups.html', groups=Group.query.all())
 
 
 @app.route('/group/<int:group_id>/')
 @login_required
 def group_detail(group_id):
-	group = Group.query.get_or_404(group_id)
-	return render_template('group_detail.html', group=group)
+	return render_template('group_detail.html', group=Group.query.get_or_404(group_id))
 
 
 @app.route('/entry/<int:entry_id>')
 @login_required
 def entry_detail(entry_id):
-	entry = Entry.query.get_or_404(entry_id)
-	return render_template('entry_detail.html', entry=entry)
+	return render_template('entry_detail.html', entry=Entry.query.get_or_404(entry_id))
 
 
 @app.route('/group/new', methods=['POST'])
+@login_required
 def new_group():
-	if not session.get('logged_in'):
-		abort(401)
-
 	if not request.form['name']:
 		abort(400)
 
@@ -155,6 +150,9 @@ def edit_entry(entry_id):
 def login():
 	error = None
 	if request.method == 'POST':
+		if not request.form['password']:
+			abort(400)
+
 		if hashlib.sha224(request.form['password']).hexdigest() == app.config['PASSWORD_HASH']:
 			session['logged_in'] = True
 			return redirect(url_for('all_groups'))
@@ -171,11 +169,13 @@ def logout():
 
 
 @app.route('/group/<int:group_id>/study/', methods=['GET'])
+@login_required
 def study(group_id):
 	return render_template('study.html', group=Group.query.get_or_404(group_id))
 
 
 @app.route('/group/<int:group_id>/study/q')
+@login_required
 def get_questions(group_id):
 	contents = []
 
@@ -190,6 +190,17 @@ def get_questions(group_id):
 	return json.dumps(contents)
 
 
+@app.route('/group/<int:group_id>/search')
+@login_required
+def search(group_id):
+	g = Group.query.get_or_404(group_id)
+	query = request.args['q']
+	if not query:
+		return redirect(url_for('group_detail', group_id=g.id))
+	results = Entry.query.filter(Entry.group_id == g.id, Entry.notes.like('%{}%'.format(query)))
+	return render_template('search.html', group=g, results=results, query=query)
+
+
 @app.route('/download')
 @login_required
 def download():
@@ -198,9 +209,9 @@ def download():
 		obj[g.name] = {}
 		for e in g.entries.all():
 			obj[g.name][e.title] = {
-				'creator': e.creator,
-				'notes': e.notes,
-				'date': str(e.date_added)
+			'creator': e.creator,
+			'notes': e.notes,
+			'date': str(e.date_added)
 			}
 
 	return Response(json.dumps(obj, indent=4, separators=(',', ': ')),
