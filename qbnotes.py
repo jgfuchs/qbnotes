@@ -2,13 +2,13 @@ import os
 import hashlib
 import json
 import random
-from datetime import date
+from datetime import date, datetime
 from functools import wraps
 
 from flask import Flask, request, session, redirect, url_for, abort, render_template, Response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.markdown import Markdown
-from sqlalchemy.sql.expression import func, select
+from sqlalchemy.sql.expression import func
 
 # general app initialization and configuration
 
@@ -17,18 +17,19 @@ heroku = os.environ.get('HEROKU') == '1'
 if heroku:
 	db_uri = os.environ['DATABASE_URL']
 else:
-	db_uri = 'postgres://127.0.0.1:5432/qbnotes'
+	db_uri = 'sqlite:///db.sqlite3'
 
 app = Flask(__name__)
 app.config.update(dict(
 	SQLALCHEMY_DATABASE_URI=db_uri,
 	SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
 	PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f',
-	version='0.3.2'
+	version='0.4.1'
 ))
 
 Markdown(app)
 db = SQLAlchemy(app)
+
 
 class Group(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -182,7 +183,7 @@ def get_questions(group_id):
 		lines = e.notes.split('---')[0].split('\n')
 		for i in xrange(0, 10):
 			line = random.choice(lines).lstrip(' +')  # strip leading spaces & bullets
-			if (len(line) > 20) or ('**' in line):
+			if (len(line) >= 16) or ('**' in line):
 				contents.append({'id': e.id, 'title': e.title, 'creator': e.creator, 'clue': line})
 				break
 
@@ -197,9 +198,10 @@ def download():
 		obj[g.name] = {}
 		for e in g.entries.all():
 			obj[g.name][e.title] = {
-			'creator': e.creator,
-			'notes': e.notes,
-			'date': str(e.date_added)}
+				'creator': e.creator,
+				'notes': e.notes,
+				'date': str(e.date_added)
+			}
 
 	return Response(json.dumps(obj, indent=4, separators=(',', ': ')),
 					mimetype='text/json',
@@ -224,8 +226,12 @@ def upload():
 					entry = Entry.query.filter(Entry.title == title, Entry.creator == obj['creator']).first()
 					if not entry:
 						entry = Entry(title, obj['creator'], obj['notes'], group)
-						entry.date_added = obj['date']
 						db.session.add(entry)
+
+					entry.title = obj['title']
+					entry.creator = obj['creator']
+					entry.notes = obj['notes']
+					entry.date_added = datetime.strptime(obj['date'], '%Y-%m-%d').date()
 
 			db.session.commit()
 		except ValueError:

@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% set page_title='QB-Notes' %}
+{% set page_title='QB-Notes v'+config['version'] %}
 
 {% block body %}
     <ol class="breadcrumb">
@@ -22,7 +22,6 @@
         <span class="glyphicon glyphicon-plus"></span>
         New group
     </button>
-
 
     <button class="btn btn-default pull-right" data-toggle="modal" data-target="#upload">
         <span class="glyphicon glyphicon-cloud-upload"></span>
@@ -46,14 +45,14 @@
                             <input type="text" class="form-control" name="name" autofocus required>
                         </div>
 
-                        <button type="submit" class="btn btn-success">
-                            <span class="glyphicon glyphicon-ok"></span>
-                            Create
-                        </button>
-
                         <button type="button" class="btn btn-danger" data-dismiss="modal">
                             <span class="glyphicon glyphicon-remove"></span>
                             Cancel
+                        </button>
+
+                        <button type="submit" class="btn btn-success pull-right">
+                            <span class="glyphicon glyphicon-ok"></span>
+                            Create
                         </button>
                     </form>
                 </div>
@@ -74,17 +73,15 @@
 
                         <br/>
 
-                        <button type="submit" class="btn btn-success pull-right">
-                            <span class="glyphicon glyphicon-ok"></span>
-                            Upload
-                        </button>
-
                         <button type="button" class="btn btn-danger" data-dismiss="modal">
                             <span class="glyphicon glyphicon-remove"></span>
                             Cancel
                         </button>
 
-                        <br/>
+                        <button type="submit" class="btn btn-success pull-right">
+                            <span class="glyphicon glyphicon-ok"></span>
+                            Upload
+                        </button>
                     </form>
                 </div>
             </div>
