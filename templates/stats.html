@@ -30,26 +30,26 @@
         </div>
     </div>
 
-{#    <div class="panel panel-default">#}
-{#        <div class="panel-body">#}
-{#            <table style="width: 100%;">#}
-{#                <thead>#}
-{#                <tr>#}
-{#                    <th>Month</th>#}
-{#                    <th>New</th>#}
-{#                </tr>#}
-{#                </thead>#}
-{##}
-{#                <tbody>#}
-{#                {% for ym in stats['months'] | sort %}#}
-{#                    <tr>#}
-{#                        <td width="15%">{{ ym }}</td>#}
-{#                        <td width="10%">{{ stats['months'][ym] }}</td>#}
-{#                        <td><div style="width: {{ 100*stats['months'][ym] / stats['maxmon'] }}%" class="bar"></div></td>#}
-{#                    </tr>#}
-{#                {% endfor %}#}
-{#                </tbody>#}
-{#            </table>#}
-{#        </div>#}
-{#    </div>#}
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <table style="width: 100%;">
+                <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>New</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for ym in stats['months'] | sort %}
+                    <tr>
+                        <td width="15%">{{ ym }}</td>
+                        <td width="10%">{{ stats['months'][ym] }}</td>
+                        <td><div style="width: {{ 100*stats['months'][ym] / stats['maxmon'] }}%" class="bar"></div></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 {% endblock %}
