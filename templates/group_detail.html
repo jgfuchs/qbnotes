@@ -8,24 +8,26 @@
         <li class="active">{{ group.name }}</li>
     </ol>
 
-    <form action="{{ url_for('search', group_id=group.id) }}" method="get" style="display: inline">
-        <input type="text" name="q" id="table-search" class="form-control" placeholder="Search..." style="width: 50%; display: inline;" accesskey="f" />
-        <button type="submit" class="btn btn-default" title="Search"><span class="glyphicon glyphicon-search"></span></button>
-    </form>
-
     <a class="btn btn-default" accesskey="n" href="{{ url_for('new_entry', group_id=group.id) }}" title="New entry">
-        <span class="glyphicon glyphicon-plus"></span>
+        <span class="glyphicon glyphicon-plus"></span> New
     </a>
 
     <a class="btn btn-default" href="{{ url_for('study', group_id=group.id) }}" title="Study mode">
-        <span class="glyphicon glyphicon-random"></span>
+        <span class="glyphicon glyphicon-random"></span> Study
     </a>
 
     <a class="btn btn-default" href="{{ url_for('stats', group_id=group.id) }}" title="Statistics">
-        <span class="glyphicon glyphicon-stats"></span>
+        <span class="glyphicon glyphicon-stats"></span> Stats
     </a>
 
-    <br /><br />
+    <br/><br/>
+
+    <form action="{{ url_for('search', group_id=group.id) }}" method="get">
+        <input type="text" name="q" id="table-search" class="form-control" placeholder="Search..." style="width: 60%; display: inline;" accesskey="f" />
+        <button type="submit" class="btn btn-default" title="Search"><span class="glyphicon glyphicon-search"></span></button>
+    </form>
+
+    <br />
 
     <table class="table table-striped table-condensed">
         <thead>
