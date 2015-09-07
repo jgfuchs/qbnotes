@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% set page_title=group.name + " stats" %}
+
+{% block head %}
+    <style>
+        .bar {
+            background-color: #444;
+            height: .5em;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('all_groups') }}">Home</a></li>
+        <li><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
+        <li class="active">[stats]</li>
+    </ol>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <strong>Works:</strong> {{ stats['nworks'] }} <br/>
+            <strong>Creators:</strong> {{ stats['creators'] | count }} <br/><br/>
+            <strong>Avg works/creator:</strong> {{ (stats['nworks']/stats['ncreators']) | round(3)}} <br/>
+            <strong>Top creators:</strong>
+            {% for e in stats['creators'][:16] %}
+                {{ e[0] }} ({{ e[1] }}){% if not loop.last %},{% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+{#    <div class="panel panel-default">#}
+{#        <div class="panel-body">#}
+{#            <table style="width: 100%;">#}
+{#                <thead>#}
+{#                <tr>#}
+{#                    <th>Month</th>#}
+{#                    <th>New</th>#}
+{#                </tr>#}
+{#                </thead>#}
+{##}
+{#                <tbody>#}
+{#                {% for ym in stats['months'] | sort %}#}
+{#                    <tr>#}
+{#                        <td width="15%">{{ ym }}</td>#}
+{#                        <td width="10%">{{ stats['months'][ym] }}</td>#}
+{#                        <td><div style="width: {{ 100*stats['months'][ym] / stats['maxmon'] }}%" class="bar"></div></td>#}
+{#                    </tr>#}
+{#                {% endfor %}#}
+{#                </tbody>#}
+{#            </table>#}
+{#        </div>#}
+{#    </div>#}
+{% endblock %}
