@@ -18,7 +18,8 @@ heroku = os.environ.get('HEROKU') == '1'
 if heroku:
 	db_uri = os.environ['DATABASE_URL']
 else:
-	db_uri = 'sqlite:///db.sqlite3'
+	# db_uri = 'sqlite:///db.sqlite3'
+	db_uri = 'postgres://127.0.0.1:5432/qbnotes'
 
 app = Flask(__name__)
 app.config.update(dict(
@@ -269,7 +270,6 @@ def upload():
 						entry = Entry(title, obj['creator'], obj['notes'], group)
 						db.session.add(entry)
 
-					entry.title = obj['title']
 					entry.creator = obj['creator']
 					entry.notes = obj['notes']
 					entry.date_added = datetime.strptime(obj['date'], '%Y-%m-%d').date()
@@ -282,5 +282,5 @@ def upload():
 
 
 if __name__ == '__main__':
-	# db.create_all()
+	db.create_all()
 	app.run(host='0.0.0.0', debug=True, port=5001)
