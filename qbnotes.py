@@ -2,13 +2,14 @@ import os
 import hashlib
 import json
 import random
+from collections import defaultdict
 from datetime import date, datetime
 from functools import wraps
 
 from flask import Flask, request, session, redirect, url_for, abort, render_template, Response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.markdown import Markdown
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql import func, label, desc
 
 # general app initialization and configuration
 
@@ -196,10 +197,39 @@ def search(group_id):
 	g = Group.query.get_or_404(group_id)
 	query = request.args['q']
 	if not query:
-		return redirect(url_for('group_detail', group_id=g.id))
-	results = Entry.query.filter(Entry.group_id == g.id, Entry.notes.like('%{}%'.format(query)))
+		return redirect(url_for('group_detail', group_id=group_id))
+	results = Entry.query.filter(Entry.group_id == group_id, Entry.notes.like('%{}%'.format(query)))
 	return render_template('search.html', group=g, results=results, query=query)
 
+@app.route('/group/<int:group_id>/stats')
+@login_required
+def stats(group_id):
+	g = Group.query.get_or_404(group_id)
+	s = dict()
+	s['nworks'] = g.entries.count()
+	s['creators'] = db.session.query(Entry.creator, label("works", func.count(Entry.id)))\
+		.filter(Entry.group_id == group_id).group_by(Entry.creator).order_by(desc("works")).all()
+	s['ncreators'] = len(s['creators'])
+
+	start = db.session.query(func.min(Entry.date_added)).filter(Entry.group_id == group_id).one()[0]
+	start = (start.year, start.month)
+
+	today = date.today()
+	today = (today.year, today.month)
+
+	s['months'] = dict()
+	while start <= today:
+		s['months']["{}-{:02d}".format(*start)] = 0
+		start = (start[0], start[1] + 1)
+		if start[1] > 12:
+			start = (start[0] + 1, 1)
+
+	for e in g.entries:
+		s['months'][e.date_added.strftime("%Y-%m")] += 1
+
+	s['maxmon'] = max(s['months'].values())
+
+	return render_template('stats.html', group=g, stats=s)
 
 @app.route('/download')
 @login_required
@@ -252,5 +282,5 @@ def upload():
 
 
 if __name__ == '__main__':
-	db.create_all()
+	# db.create_all()
 	app.run(host='0.0.0.0', debug=True, port=5001)
