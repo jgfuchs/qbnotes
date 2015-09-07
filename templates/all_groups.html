@@ -23,13 +23,13 @@
         New group
     </button>
 
-    <button class="btn btn-default pull-right" data-toggle="modal" data-target="#upload">
-        <span class="glyphicon glyphicon-cloud-upload"></span>
-    </button>
-
-    <a class="btn btn-default pull-right" href="{{ url_for('download') }}">
-        <span class="glyphicon glyphicon-cloud-download"></span>
+    <a class="btn btn-default pull-right" href="{{ url_for('download') }}" style="margin-left: 10px;">
+        <span class="glyphicon glyphicon-cloud-download"></span> Download
     </a>
+
+    <button class="btn btn-default pull-right" data-toggle="modal" data-target="#upload">
+        <span class="glyphicon glyphicon-cloud-upload"></span> Upload
+    </button>
 
     <div class="modal" id="new-group" tabindex="-1" role="dialog">
         <div class="modal-dialog">
