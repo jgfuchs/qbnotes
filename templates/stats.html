@@ -15,7 +15,7 @@
     <ol class="breadcrumb">
         <li><a href="{{ url_for('all_groups') }}">Home</a></li>
         <li><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
-        <li class="active">[stats]</li>
+        <li class="active">[Stats]</li>
     </ol>
 
     <div class="panel panel-default">
@@ -24,7 +24,7 @@
             <strong>Creators:</strong> {{ stats['creators'] | count }} <br/><br/>
             <strong>Avg works/creator:</strong> {{ (stats['nworks']/stats['ncreators']) | round(3)}} <br/>
             <strong>Top creators:</strong>
-            {% for e in stats['creators'][:16] %}
+            {% for e in stats['creators'][:20] %}
                 {{ e[0] }} ({{ e[1] }}){% if not loop.last %},{% endif %}
             {% endfor %}
         </div>
@@ -36,7 +36,7 @@
             <table style="width: 100%;">
                 <thead>
                 <tr>
-                    <th width="10%">Month</th>
+                    <th width="15%">Month</th>
                     <th width="5%;">Count</th>
                     <th></th>
                 </tr>

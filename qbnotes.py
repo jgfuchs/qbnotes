@@ -18,7 +18,6 @@ heroku = os.environ.get('HEROKU') == '1'
 if heroku:
 	db_uri = os.environ['DATABASE_URL']
 else:
-	# db_uri = 'sqlite:///db.sqlite3'
 	db_uri = 'postgres://127.0.0.1:5432/qbnotes'
 
 app = Flask(__name__)
@@ -26,7 +25,7 @@ app.config.update(dict(
 	SQLALCHEMY_DATABASE_URI=db_uri,
 	SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
 	PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f',
-	version='0.4.1'
+	version='0.5.7'
 ))
 
 Markdown(app)
@@ -202,10 +201,12 @@ def search(group_id):
 	results = Entry.query.filter(Entry.group_id == group_id, Entry.notes.like('%{}%'.format(query)))
 	return render_template('search.html', group=g, results=results, query=query)
 
+
 @app.route('/group/<int:group_id>/stats')
 @login_required
 def stats(group_id):
 	g = Group.query.get_or_404(group_id)
+
 	s = dict()
 	s['nworks'] = g.entries.count()
 	s['creators'] = db.session.query(Entry.creator, label("works", func.count(Entry.id)))\
@@ -214,7 +215,6 @@ def stats(group_id):
 
 	start = db.session.query(func.min(Entry.date_added)).filter(Entry.group_id == group_id).one()[0]
 	start = (start.year, start.month)
-
 	today = date.today()
 	today = (today.year, today.month)
 
@@ -231,6 +231,7 @@ def stats(group_id):
 	s['maxmon'] = max(s['months'].values())
 
 	return render_template('stats.html', group=g, stats=s)
+
 
 @app.route('/download')
 @login_required
