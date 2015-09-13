@@ -2,6 +2,36 @@
 
 {% set page_title=group.name + " stats" %}
 
+{% macro histogram(title, labellabel, datalabel, hist) %}
+    {% set data = hist[0] %}
+    {% set maxval = hist[1] %}
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ title }}</div>
+        <div class="panel-body">
+            {{ caller() }}
+            <table style="width: 100%;">
+                <thead>
+                <tr>
+                    <th width="10%">{{ labellabel }}</th>
+                    <th width="5%;">{{ datalabel }}</th>
+                    <th></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for key in data.keys() | sort %}
+                    <tr>
+                        <td>{{ key }}</td>
+                        <td style="text-align: right">{{ data[key] }}&nbsp&nbsp</td>
+                        <td><div style="width: {{ 100*data[key] / maxval }}%" class="bar"></div></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endmacro %}
+
 {% block head %}
     <style>
         .bar {
@@ -15,43 +45,43 @@
     <ol class="breadcrumb">
         <li><a href="{{ url_for('all_groups') }}">Home</a></li>
         <li><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
-        <li class="active">[Stats]</li>
+        <li class="active">[stats]</li>
     </ol>
 
     <div class="panel panel-default">
         <div class="panel-body">
             <strong>Works:</strong> {{ stats['nworks'] }} <br/>
-            <strong>Creators:</strong> {{ stats['creators'] | count }} <br/><br/>
-            <strong>Avg works/creator:</strong> {{ (stats['nworks']/stats['ncreators']) | round(3)}} <br/>
-            <strong>Top creators:</strong>
-            {% for e in stats['creators'][:20] %}
-                {{ e[0] }} ({{ e[1] }}){% if not loop.last %},{% endif %}
-            {% endfor %}
+            <strong>Creators:</strong> {{ stats['creators'] | count }} <br/>
         </div>
     </div>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">Entries created</div>
-        <div class="panel-body">
-            <table style="width: 100%;">
-                <thead>
-                <tr>
-                    <th width="15%">Month</th>
-                    <th width="5%;">Count</th>
-                    <th></th>
-                </tr>
-                </thead>
+    {% call histogram("Works per creator", "Works", "Count", stats['nworks_hist']) %}
+        <strong>Avg works/creator:</strong> {{ (stats['nworks']/stats['ncreators']) | round(3)}} <br/> <br/>
+        <strong>Top creators:</strong>
+        {% for e in stats['creators'][:20] %}
+            {{ e[0] }} ({{ e[1] }}){% if not loop.last %},{% endif %}
+        {% endfor %}
+        <br/><br/>
+    {% endcall %}
 
-                <tbody>
-                {% for ym in stats['months'] | sort %}
-                    <tr>
-                        <td>{{ ym }}</td>
-                        <td style="text-align: right">{{ stats['months'][ym] }}&nbsp&nbsp</td>
-                        <td><div style="width: {{ 100*stats['months'][ym] / stats['maxmon'] }}%" class="bar"></div></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    {% call histogram("Entries created", "Month", "Count", stats['month_hist']) %}
+
+    {% endcall %}
+
+    {% call histogram("Entry length", "Length", "Count", stats['length_hist']) %}
+        <strong>Total:</strong> {{ (stats['total_len'] / 1024.0) | round(3) }} kB <br/>
+        <strong>Words (est):</strong> ~{{ (stats['total_len'] / 6.1) | int }} <br/>
+        <strong>Pages (est):</strong> ~{{ (stats['total_len'] / 6.1 / 500) | int }} <br/>
+        <br/>
+        <strong>Longest:</strong>
+        {% for (n, l) in stats['longest'] %}
+            {{ n }} ({{ l}}){% if not loop.last %},{% endif %}
+        {% endfor %}
+        <br/><br/>
+        <strong>Shortest:</strong>
+        {% for (n, l) in stats['shortest'] %}
+            {{ n }} ({{ l}}){% if not loop.last %},{% endif %}
+        {% endfor %}
+        <br/><br/>
+    {% endcall %}
 {% endblock %}

@@ -10,6 +10,7 @@ from flask import Flask, request, session, redirect, url_for, abort, render_temp
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.markdown import Markdown
 from sqlalchemy.sql import func, label, desc
+import operator
 
 # general app initialization and configuration
 
@@ -18,7 +19,8 @@ heroku = os.environ.get('HEROKU') == '1'
 if heroku:
 	db_uri = os.environ['DATABASE_URL']
 else:
-	db_uri = 'postgres://127.0.0.1:5432/qbnotes'
+	db_uri = 'sqlite:///db.sqlite3'
+	# db_uri = 'postgres://127.0.0.1:5432/qbnotes'
 
 app = Flask(__name__)
 app.config.update(dict(
@@ -213,22 +215,45 @@ def stats(group_id):
 		.filter(Entry.group_id == group_id).group_by(Entry.creator).order_by(desc("works")).all()
 	s['ncreators'] = len(s['creators'])
 
+	nworks_hist = defaultdict(int)
+	for c in s['creators']:
+		nworks_hist[c[1]] += 1
+	s['nworks_hist'] = (nworks_hist, max(nworks_hist.values()))
+
+	month_hist = dict()
 	start = db.session.query(func.min(Entry.date_added)).filter(Entry.group_id == group_id).one()[0]
 	start = (start.year, start.month)
 	today = date.today()
 	today = (today.year, today.month)
-
-	s['months'] = dict()
 	while start <= today:
-		s['months']["{}-{:02d}".format(*start)] = 0
+		month_hist["{}-{:02d}".format(*start)] = 0
 		start = (start[0], start[1] + 1)
 		if start[1] > 12:
 			start = (start[0] + 1, 1)
 
 	for e in g.entries:
-		s['months'][e.date_added.strftime("%Y-%m")] += 1
+		month_hist[e.date_added.strftime("%Y-%m")] += 1
 
-	s['maxmon'] = max(s['months'].values())
+	s['month_hist'] = (month_hist, max(month_hist.values()))
+
+	length_hist = dict()
+	total_len = 0
+	length_step = 200
+	for i in xrange(1, 18):
+		length_hist[i * length_step] = 0
+
+	longest = dict()
+	for e in g.entries:
+		l = len(e.notes)
+		total_len += l
+		length_hist[int(l / length_step) * length_step] += 1
+		longest[e.title] = l
+
+	s['length_hist'] = (length_hist, max(length_hist.values()))
+
+	s['longest'] = sorted(longest.items(), key=operator.itemgetter(1), reverse=True)[:10]
+	s['shortest'] = sorted(longest.items(), key=operator.itemgetter(1))[:10]
+	s['total_len'] = total_len
 
 	return render_template('stats.html', group=g, stats=s)
 
