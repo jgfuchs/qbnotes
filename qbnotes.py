@@ -239,7 +239,7 @@ def stats(group_id):
 	length_hist = dict()
 	total_len = 0
 	length_step = 200
-	for i in xrange(1, 18):
+	for i in xrange(18):
 		length_hist[i * length_step] = 0
 
 	longest = dict()
