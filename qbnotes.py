@@ -27,7 +27,7 @@ app.config.update(dict(
 	SQLALCHEMY_DATABASE_URI=db_uri,
 	SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
 	PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f',
-	version='0.5.9'
+	version='0.5.10'
 ))
 
 Markdown(app)
@@ -254,6 +254,7 @@ def stats(group_id):
 	s['longest'] = sorted(longest.items(), key=operator.itemgetter(1), reverse=True)[:16]
 	s['shortest'] = sorted(longest.items(), key=operator.itemgetter(1))[:16]
 	s['total_len'] = total_len
+	s['avg_len'] = total_len / g.entries.count()
 
 	return render_template('stats.html', group=g, stats=s)
 
