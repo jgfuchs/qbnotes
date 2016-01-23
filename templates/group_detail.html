@@ -2,70 +2,70 @@
 
 {% set page_title=group.name %}
 
-{% block body %}
-    <ol class="breadcrumb">
-        <li><a href="{{ url_for('all_groups') }}">Home</a></li>
-        <li class="active">{{ group.name }}</li>
-    </ol>
+{% block<ol class="breadcrumb">
+    <li><a href="{{ url_for('all_groups') }}">Home</a></li>
+    <li class="active">{{ group.name }}</li>
+</ol>
 
-    <a class="btn btn-default" accesskey="n" href="{{ url_for('new_entry', group_id=group.id) }}" title="New entry">
-        <span class="glyphicon glyphicon-plus"></span> New
-    </a>
+<a class="btn btn-default" accesskey="n" href="{{ url_for('new_entry', group_id=group.id) }}" title="New entry">
+    <span class="glyphicon glyphicon-plus"></span> New
+</a>
 
-    <a class="btn btn-default" href="{{ url_for('study', group_id=group.id) }}" title="Study mode">
-        <span class="glyphicon glyphicon-random"></span> Study
-    </a>
+<a class="btn btn-default" href="{{ url_for('study', group_id=group.id) }}" title="Study mode">
+    <span class="glyphicon glyphicon-random"></span> Study
+</a>
 
-    <a class="btn btn-default" href="{{ url_for('stats', group_id=group.id) }}" title="Statistics">
-        <span class="glyphicon glyphicon-stats"></span> Stats
-    </a>
+<a class="btn btn-default" href="{{ url_for('stats', group_id=group.id) }}" title="Statistics">
+    <span class="glyphicon glyphicon-stats"></span> Stats
+</a>
 
-    <br/><br/>
+<br/>
+<br/>
 
-    <form action="{{ url_for('search', group_id=group.id) }}" method="get">
-        <button type="submit" class="btn btn-default" title="Search"><span class="glyphicon glyphicon-search"></span></button>
-        <input type="text" name="q" id="table-search" class="form-control" placeholder="Search..." style="width: 60%; display: inline;" accesskey="f" />
-    </form>
+<form action="{{ url_for('search', group_id=group.id) }}" method="get">
+    <button type="submit" class="btn btn-default" title="Search"><span class="glyphicon glyphicon-search"></span></button>
+    <input type="text" name="q" id="table-search" class="form-control" placeholder="Search..." style="width: 60%; display: inline;" accesskey="f" />
+</form>
 
-    <br />
+<br />
 
-    <table class="table table-striped table-condensed">
-        <thead>
+<table class="table table-striped table-condensed">
+    <thead>
         <tr>
             <th class="col-md-8">Title</th>
             <th class="col-md-4">Creator</th>
         </tr>
-        </thead>
+    </thead>
 
-        <tbody>
+    <tbody>
         {% for entry in group.entries.order_by("entry.creator", "entry.title").all() %}
-            <tr>
-                <td>
-                    <strong><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></strong>
-                </td>
-                <td>{{ entry.creator }}</td>
-            </tr>
+        <tr>
+            <td>
+                <strong><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></strong>
+            </td>
+            <td>{{ entry.creator }}</td>
+        </tr>
         {% endfor %}
-        </tbody>
-    </table>
+    </tbody>
+</table>
 {% endblock %}
 
 {% block script %}
-    <script>
-        $("#table-search").keyup(function () {
-            var q = this.value.toLowerCase();
+<script>
+    $("#table-search").keyup(function() {
+        var q = this.value.toLowerCase();
 
-            var rows = $("tbody").find("tr");
-            if (q == "") {
-                rows.show();
-                return;
-            }
+        var rows = $("tbody").find("tr");
+        if (q == "") {
+            rows.show();
+            return;
+        }
 
-            rows.hide();
+        rows.hide();
 
-            rows.filter(function (i, e) {
-                return $(this).text().toLowerCase().indexOf(q) >= 0
-            }).show();
-        });
-    </script>
+        rows.filter(function(i, e) {
+            return $(this).text().toLowerCase().indexOf(q) >= 0
+        }).show();
+    });
+</script>
 {% endblock %}

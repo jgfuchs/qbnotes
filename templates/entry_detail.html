@@ -3,22 +3,22 @@
 {% set page_title=entry.title %}
 
 {% block body %}
-	<ol class="breadcrumb">
-		<li><a href="{{ url_for('all_groups') }}">Home</a></li>
-		<li><a href="{{ url_for('group_detail', group_id=entry.group.id) }}">{{ entry.group.name }}</a></li>
-		<li class="active">{{ entry.title }}</li>
-	</ol>
-	
-	<div class="h2">{{ entry.title }}</div>
-	<div class="h3">{{ entry.creator }}</div>
-	
-	<div class="panel panel-default">
-		<div class="panel-body">
-			<p>{% filter markdown %}{{ entry.notes | safe }}{% endfilter %}</p>
-		</div>
-	</div>
+<ol class="breadcrumb">
+    <li><a href="{{ url_for('all_groups') }}">Home</a></li>
+    <li><a href="{{ url_for('group_detail', group_id=entry.group.id) }}">{{ entry.group.name }}</a></li>
+    <li class="active">{{ entry.title }}</li>
+</ol>
 
-	<a class="btn btn-default pull-right" accesskey="e" href="{{ url_for('edit_entry', entry_id=entry.id) }}" title="Edit (Alt-e)">
-		<span class="glyphicon glyphicon-pencil"></span> Edit
-	</a>
+<div class="h2">{{ entry.title }}</div>
+<div class="h3">{{ entry.creator }}</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <p>{% filter markdown %}{{ entry.notes | safe }}{% endfilter %}</p>
+    </div>
+</div>
+
+<a class="btn btn-default pull-right" accesskey="e" href="{{ url_for('edit_entry', entry_id=entry.id) }}" title="Edit (Alt-e)">
+    <span class="glyphicon glyphicon-pencil"></span> Edit
+</a>
 {% endblock %}

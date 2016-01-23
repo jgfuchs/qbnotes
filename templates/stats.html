@@ -70,7 +70,7 @@
 
     {% call histogram("Entry length", "Length", "Count", stats['length_hist']) %}
         <strong>Total:</strong> {{ (stats['total_len'] / 1024.0) | round(3) }} kB <br/>
-        <strong>Average:</strong> {{ stats['avg_len'] }} <br/> 
+        <strong>Average:</strong> {{ stats['avg_len'] }} <br/>
         <strong>Words (est.):</strong> {{ (stats['total_len'] / 6.1) | int }} <br/>
         <strong>Pages (est.):</strong> {{ (stats['total_len'] / 6.1 / 500) | int }} <br/>
         <br/>
@@ -86,4 +86,3 @@
         <br/><br/>
     {% endcall %}
 {% endblock %}
-
