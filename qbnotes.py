@@ -79,7 +79,9 @@ def login_required(f):
 @app.route('/')
 @login_required
 def all_groups():
-    return render_template('all_groups.html', groups=Group.query.all())
+    groups = Group.query.all()
+    groups.sort(key=lambda g: g.entries.count(), reverse=True)
+    return render_template('all_groups.html', groups=groups)
 
 
 @app.route('/group/<int:group_id>/')
