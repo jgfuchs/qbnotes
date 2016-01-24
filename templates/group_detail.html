@@ -1,8 +1,9 @@
-{% extends "layout.html" %}
+{%- extends "layout.html" -%}
 
-{% set page_title=group.name %}
+{%- set page_title=group.name -%}
 
-{% block<ol class="breadcrumb">
+{%- block body -%}
+<ol class="breadcrumb">
     <li><a href="{{ url_for('all_groups') }}">Home</a></li>
     <li class="active">{{ group.name }}</li>
 </ol>
@@ -38,19 +39,26 @@
     </thead>
 
     <tbody>
-        {% for entry in group.entries.order_by("entry.creator", "entry.title").all() %}
+        {%- for entry in group.entries.order_by("entry.creator", "entry.title").all() -%}
         <tr>
             <td>
                 <strong><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></strong>
             </td>
             <td>{{ entry.creator }}</td>
         </tr>
-        {% endfor %}
+        {%- endfor -%}
     </tbody>
 </table>
-{% endblock %}
 
-{% block script %}
+<form action="{{ url_for('delete_group', group_id=group.id) }}" method="post"
+    onsubmit="return confirm('Really delete this group?')">
+    <button type="submit" class="btn btn-default" title="Delete this group">
+        <span class="glyphicon glyphicon-remove"></span> Delete this group
+    </button>
+</form>
+{%- endblock -%}
+
+{%- block script -%}
 <script>
     $("#table-search").keyup(function() {
         var q = this.value.toLowerCase();
@@ -68,4 +76,4 @@
         }).show();
     });
 </script>
-{% endblock %}
+{%- endblock -%}

@@ -12,11 +12,7 @@ from flask.ext.markdown import Markdown
 from sqlalchemy.sql import func, label, desc
 import operator
 
-# general app initialization and configuration
-
-heroku = os.environ.get('HEROKU') == '1'
-
-if heroku:
+if os.environ.get('HEROKU') == '1':
     db_uri = os.environ['DATABASE_URL']
 else:
     db_uri = 'sqlite:///db.sqlite3'
@@ -54,8 +50,8 @@ class Entry(db.Model):
     date_added = db.Column(db.Date)
 
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
-    group = db.relationship(
-        'Group', backref=db.backref('entries', lazy='dynamic'))
+    group = db.relationship('Group',
+            backref=db.backref('entries', lazy='dynamic', cascade='delete'))
 
     def __init__(self, title, creator, notes, group):
         self.title = title
@@ -266,6 +262,15 @@ def stats(group_id):
     return render_template('stats.html', group=g, stats=s)
 
 
+@app.route('/group/<int:group_id>/delete', methods=['POST'])
+@login_required
+def delete_group(group_id):
+    g = Group.query.get_or_404(group_id)
+    db.session.delete(g)
+    db.session.commit()
+    return redirect(url_for('all_groups'))
+
+
 @app.route('/download')
 @login_required
 def download():
@@ -301,15 +306,12 @@ def upload():
 
                     entry = Entry.query.filter(
                         Entry.title == title, Entry.creator == obj['creator']).first()
-                    if not entry:
-                        entry = Entry(title, obj['creator'], obj[
-                                      'notes'], group)
-                        db.session.add(entry)
 
-                    entry.creator = obj['creator']
-                    entry.notes = obj['notes']
-                    entry.date_added = datetime.strptime(
-                        obj['date'], '%Y-%m-%d').date()
+                    if entry:
+                        entry.notes = obj['notes']
+                    else:
+                        db.session.add(Entry(title, obj['creator'],
+                                             obj['notes'], group))
 
             db.session.commit()
         except ValueError:
