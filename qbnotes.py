@@ -69,9 +69,9 @@ class User(db.Model):
     passhash = db.Column(db.String)
     level = db.Column(db.Integer)
 
-    READ = 1
-    WRITE = 2
-    ADMIN = 3
+    READ = 0
+    WRITE = 1
+    ADMIN = 2
 
     def __init__(self, name, password, level):
         self.name = name
@@ -94,11 +94,8 @@ def login_required(level):
                     abort(403)
             else:
                 return redirect(url_for('login'))
-
             return f(*args, **kwargs)
-
         return decorated_function
-
     return login_decorator
 
 
@@ -146,9 +143,8 @@ def new_entry(group_id):
         if not (request.form['title'] and request.form['creator'] and request.form['notes']):
             abort(400)
 
-        e = Entry(request.form['title'], request.form[
-                  'creator'], request.form['notes'], g)
-
+        e = Entry(request.form['title'],
+            request.form['creator'], request.form['notes'], g)
         db.session.add(e)
         db.session.commit()
 
@@ -305,6 +301,16 @@ def delete_group(group_id):
     db.session.commit()
     return redirect(url_for('all_groups'))
 
+
+@app.route('/admin')
+@login_required(User.ADMIN)
+def admin():
+    return render_template('admin.html', users=User.query.all())
+
+@app.route('/admin/adduser', methods=['POST'])
+@login_required(User.ADMIN)
+def add_user():
+    abort(501)
 
 @app.route('/download')
 @login_required(User.READ)

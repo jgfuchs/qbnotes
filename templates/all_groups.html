@@ -16,7 +16,7 @@
     {% endfor %}
 </div>
 
-<br/>
+<!-- <br/> -->
 
 <button class="btn btn-default" accesskey="n" data-toggle="modal" data-target="#new-group">
     <span class="glyphicon glyphicon-plus"></span> New group
@@ -29,6 +29,18 @@
 <button class="btn btn-default pull-right" data-toggle="modal" data-target="#upload">
     <span class="glyphicon glyphicon-cloud-upload"></span> Upload
 </button>
+
+<br /><br />
+
+<p class="pull-right">
+    Logged in as <strong>
+    {% if session.user.level == 2 %}
+        <a href="/admin">{{ session.user.name }}</a>
+    {% else %}
+        {{ session.user.name }}
+    {% endif %}</strong>
+    (<a href="/logout">logout</a>)
+</p>
 
 <div class="modal" id="new-group" tabindex="-1" role="dialog">
     <div class="modal-dialog">
