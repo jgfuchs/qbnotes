@@ -1,7 +1,8 @@
 import os
-import hashlib
 import json
 import random
+import operator
+from passlib.hash import pbkdf2_sha256
 from collections import defaultdict
 from datetime import date, datetime
 from functools import wraps
@@ -10,7 +11,6 @@ from flask import Flask, request, session, redirect, url_for, abort, render_temp
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.markdown import Markdown
 from sqlalchemy.sql import func, label, desc
-import operator
 
 if os.environ.get('HEROKU') == '1':
     db_uri = os.environ['DATABASE_URL']
@@ -21,9 +21,9 @@ else:
 app = Flask(__name__)
 app.config.update(dict(
     SQLALCHEMY_DATABASE_URI=db_uri,
-    SECRET_KEY='43316b82bca7c9847536d08abaae40a0',
-    PASSWORD_HASH='11de2afa581597d4846ccf4cc6de36e7bc9789a3e044e29baca35f7f',
-    version='0.5.10'
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    SECRET_KEY=os.urandom(16),
+    version='0.6.1'
 ))
 
 Markdown(app)
@@ -61,23 +61,51 @@ class Entry(db.Model):
         self.date_added = date.today()
 
     def __repr__(self):
-        return '<Entry \'%s\'>' % self.title
+        return '<Entry \'{}\'>'.format(self.title)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    passhash = db.Column(db.String)
+    level = db.Column(db.Integer)
+
+    READ = 1
+    WRITE = 2
+    ADMIN = 3
+
+    def __init__(self, name, password, level):
+        self.name = name
+        self.passhash = pbkdf2_sha256.encrypt(password)
+        self.level = level
+
+    def __repr__(self):
+        return '<User \'{}\', {}>'.format(self.name, self.level)
+
+    def check_pass(self, password):
+        return pbkdf2_sha256.verify(password, self.passhash)
 
 
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('logged_in'):
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
+def login_required(level):
+    def login_decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if session.get('user'):
+                if level > session['user']['level']:
+                    abort(403)
+            else:
+                return redirect(url_for('login'))
 
-    return decorated_function
+            return f(*args, **kwargs)
+
+        return decorated_function
+
+    return login_decorator
 
 
 # main app pages
 
 @app.route('/')
-@login_required
+@login_required(User.READ)
 def all_groups():
     groups = Group.query.all()
     groups.sort(key=lambda g: g.entries.count(), reverse=True)
@@ -85,19 +113,19 @@ def all_groups():
 
 
 @app.route('/group/<int:group_id>/')
-@login_required
+@login_required(User.READ)
 def group_detail(group_id):
     return render_template('group_detail.html', group=Group.query.get_or_404(group_id))
 
 
 @app.route('/entry/<int:entry_id>')
-@login_required
+@login_required(User.READ)
 def entry_detail(entry_id):
     return render_template('entry_detail.html', entry=Entry.query.get_or_404(entry_id))
 
 
 @app.route('/group/new', methods=['POST'])
-@login_required
+@login_required(User.ADMIN)
 def new_group():
     if not request.form['name']:
         abort(400)
@@ -110,7 +138,7 @@ def new_group():
 
 
 @app.route('/group/<int:group_id>/new', methods=['GET', 'POST'])
-@login_required
+@login_required(User.WRITE)
 def new_entry(group_id):
     g = Group.query.get_or_404(group_id)
 
@@ -130,7 +158,7 @@ def new_entry(group_id):
 
 
 @app.route('/entry/<int:entry_id>/edit', methods=['GET', 'POST'])
-@login_required
+@login_required(User.WRITE)
 def edit_entry(entry_id):
     e = Entry.query.get_or_404(entry_id)
 
@@ -153,32 +181,37 @@ def edit_entry(entry_id):
 def login():
     error = None
     if request.method == 'POST':
-        if not request.form['password']:
+        if not (request.form['username'] and request.form['password']):
             abort(400)
 
-        if hashlib.sha224(request.form['password']).hexdigest() == app.config['PASSWORD_HASH']:
-            session['logged_in'] = True
-            return redirect(url_for('all_groups'))
+        user = User.query.filter_by(name=request.form['username']).first()
+        if user:
+            if user.check_pass(request.form['password']):
+                # session data needs to be JSON-serializable
+                session['user'] = {'name': user.name, 'level': user.level}
+                return redirect(url_for('all_groups'))
+            else:
+                error = 'Wrong password!'
         else:
-            error = 'Wrong password!'
+            error = 'No such user'
 
     return render_template('login.html', error=error)
 
 
 @app.route('/logout')
 def logout():
-    session['logged_in'] = False
+    session.pop('user', None)
     return redirect(url_for('login'))
 
 
 @app.route('/group/<int:group_id>/study/', methods=['GET'])
-@login_required
+@login_required(User.READ)
 def study(group_id):
     return render_template('study.html', group=Group.query.get_or_404(group_id))
 
 
 @app.route('/group/<int:group_id>/study/q')
-@login_required
+@login_required(User.READ)
 def get_questions(group_id):
     contents = []
 
@@ -196,7 +229,7 @@ def get_questions(group_id):
 
 
 @app.route('/group/<int:group_id>/search')
-@login_required
+@login_required(User.READ)
 def search(group_id):
     g = Group.query.get_or_404(group_id)
     query = request.args['q']
@@ -208,7 +241,7 @@ def search(group_id):
 
 
 @app.route('/group/<int:group_id>/stats')
-@login_required
+@login_required(User.READ)
 def stats(group_id):
     g = Group.query.get_or_404(group_id)
 
@@ -265,7 +298,7 @@ def stats(group_id):
 
 
 @app.route('/group/<int:group_id>/delete', methods=['POST'])
-@login_required
+@login_required(User.ADMIN)
 def delete_group(group_id):
     g = Group.query.get_or_404(group_id)
     db.session.delete(g)
@@ -274,7 +307,7 @@ def delete_group(group_id):
 
 
 @app.route('/download')
-@login_required
+@login_required(User.READ)
 def download():
     obj = {}
     for g in Group.query.all():
@@ -292,7 +325,7 @@ def download():
 
 
 @app.route('/upload', methods=['POST'])
-@login_required
+@login_required(User.ADMIN)
 def upload():
     if request.files['file']:
         try:
