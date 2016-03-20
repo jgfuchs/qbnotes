@@ -14,19 +14,17 @@ from sqlalchemy.sql import func, label, desc
 
 if os.environ.get('HEROKU') == '1':
     db_uri = os.environ['DATABASE_URL']
+    skey = os.environ['SECRET_KEY']
 else:
     db_uri = 'sqlite:///db.sqlite3'
-    # db_uri = 'postgres://127.0.0.1:5432/qbnotes'
+    skey = os.urandom(16)
 
 app = Flask(__name__)
 app.config.update(dict(
     SQLALCHEMY_DATABASE_URI=db_uri,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
-
-    # sessions won't persist after proceses restarts
-    SECRET_KEY=os.urandom(16),
-
-    version='0.6.2'
+    SECRET_KEY=skey,
+    version='0.6.3'
 ))
 
 Markdown(app)
