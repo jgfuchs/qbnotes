@@ -33,12 +33,7 @@
 <br /><br />
 
 <p class="pull-right">
-    Logged in as <strong>
-    {% if session.user.level == 2 %}
-        <a href="/admin">{{ session.user.name }}</a>
-    {% else %}
-        {{ session.user.name }}
-    {% endif %}</strong>
+    Logged in as <strong>{{ session.user.name }}</strong>
     (<a href="/logout">logout</a>)
 </p>
 

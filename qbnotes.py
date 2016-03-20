@@ -22,8 +22,11 @@ app = Flask(__name__)
 app.config.update(dict(
     SQLALCHEMY_DATABASE_URI=db_uri,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
+
+    # sessions won't persist after proceses restarts
     SECRET_KEY=os.urandom(16),
-    version='0.6.1'
+
+    version='0.6.2'
 ))
 
 Markdown(app)
@@ -51,7 +54,7 @@ class Entry(db.Model):
 
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     group = db.relationship('Group',
-            backref=db.backref('entries', lazy='dynamic', cascade='delete'))
+                            backref=db.backref('entries', lazy='dynamic', cascade='delete'))
 
     def __init__(self, title, creator, notes, group):
         self.title = title
@@ -63,15 +66,16 @@ class Entry(db.Model):
     def __repr__(self):
         return '<Entry \'{}\'>'.format(self.title)
 
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    passhash = db.Column(db.String)
     level = db.Column(db.Integer)
+    passhash = db.Column(db.String)
 
-    READ = 0
-    WRITE = 1
-    ADMIN = 2
+    READ = 1
+    WRITE = 2
+    ADMIN = 3
 
     def __init__(self, name, password, level):
         self.name = name
@@ -84,13 +88,15 @@ class User(db.Model):
     def check_pass(self, password):
         return pbkdf2_sha256.verify(password, self.passhash)
 
+# helpers
+
 
 def login_required(level):
     def login_decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if session.get('user'):
-                if level > session['user']['level']:
+                if session['user'].level < level:
                     abort(403)
             else:
                 return redirect(url_for('login'))
@@ -144,7 +150,7 @@ def new_entry(group_id):
             abort(400)
 
         e = Entry(request.form['title'],
-            request.form['creator'], request.form['notes'], g)
+                  request.form['creator'], request.form['notes'], g)
         db.session.add(e)
         db.session.commit()
 
@@ -301,16 +307,6 @@ def delete_group(group_id):
     db.session.commit()
     return redirect(url_for('all_groups'))
 
-
-@app.route('/admin')
-@login_required(User.ADMIN)
-def admin():
-    return render_template('admin.html', users=User.query.all())
-
-@app.route('/admin/adduser', methods=['POST'])
-@login_required(User.ADMIN)
-def add_user():
-    abort(501)
 
 @app.route('/download')
 @login_required(User.READ)
