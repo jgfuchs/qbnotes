@@ -24,7 +24,6 @@ app.config.update(dict(
     SQLALCHEMY_DATABASE_URI=db_uri,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     SECRET_KEY=skey,
-    version='0.6.3'
 ))
 
 Markdown(app)
