@@ -8,9 +8,11 @@
     <li class="active">{{ group.name }}</li>
 </ol>
 
+{%- if is_writer() -%}
 <a class="btn btn-default" accesskey="n" href="{{ url_for('new_entry', group_id=group.id) }}" title="New entry">
     <span class="glyphicon glyphicon-plus"></span> New
 </a>
+{%- endif -%}
 
 <a class="btn btn-default" href="{{ url_for('study', group_id=group.id) }}" title="Study mode">
     <span class="glyphicon glyphicon-random"></span> Study
@@ -50,12 +52,15 @@
     </tbody>
 </table>
 
+{%- if is_admin() -%}
 <form action="{{ url_for('delete_group', group_id=group.id) }}" method="post"
     onsubmit="return confirm('Really delete this group?')">
     <button type="submit" class="btn btn-default" title="Delete this group">
         <span class="glyphicon glyphicon-remove"></span> Delete this group
     </button>
 </form>
+{%- endif -%}
+
 {%- endblock -%}
 
 {%- block script -%}

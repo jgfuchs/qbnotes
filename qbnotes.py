@@ -88,8 +88,6 @@ class User(db.Model):
     def check_pass(self, password):
         return pbkdf2_sha256.verify(password, self.passhash)
 
-# helpers
-
 
 def login_required(level):
     def login_decorator(f):
@@ -97,7 +95,7 @@ def login_required(level):
         def decorated_function(*args, **kwargs):
             if session.get('user'):
                 if session['user']['level'] < level:
-                    abort(403)
+                    abort(401)
             else:
                 return redirect(url_for('login'))
             return f(*args, **kwargs)
@@ -107,9 +105,20 @@ def login_required(level):
 
 def check_params(*reqd):
     for param in reqd:
-        if not requests.form[param]:
+        if not request.form[param]:
             abort(400)
-    return requests.form
+    return request.form
+
+
+@app.context_processor
+def context_processor():
+    def is_writer():
+        return session['user']['level'] >= User.WRITE
+
+    def is_admin():
+        return session['user']['level'] >= User.ADMIN
+
+    return {'is_writer': is_writer, 'is_admin': is_admin}
 
 
 # main app pages

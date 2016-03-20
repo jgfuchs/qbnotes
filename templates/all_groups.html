@@ -1,8 +1,4 @@
-{% extends "layout.html" %}
-
-{% set page_title='QB-Notes v'+config['version'] %}
-
-{% block body %}
+{% extends "layout.html" %} {% set page_title='QB-Notes v'+config['version'] %} {% block body %}
 <ol class="breadcrumb">
     <li class="active">Home</li>
 </ol>
@@ -16,27 +12,31 @@
     {% endfor %}
 </div>
 
-<!-- <br/> -->
-
+{%- if is_admin() -%}
 <button class="btn btn-default" accesskey="n" data-toggle="modal" data-target="#new-group">
     <span class="glyphicon glyphicon-plus"></span> New group
 </button>
+{%- endif -%}
 
 <a class="btn btn-default pull-right" href="{{ url_for('download') }}" style="margin-left: 10px;" target="_blank">
     <span class="glyphicon glyphicon-cloud-download"></span> Download
 </a>
 
+{%- if is_admin() -%}
 <button class="btn btn-default pull-right" data-toggle="modal" data-target="#upload">
     <span class="glyphicon glyphicon-cloud-upload"></span> Upload
 </button>
+{%- endif -%}
 
-<br /><br />
+<br />
+<br />
 
 <p class="pull-right">
     Logged in as <strong>{{ session.user.name }}</strong>
     (<a href="/logout">logout</a>)
 </p>
 
+{%- if is_admin() -%}
 <div class="modal" id="new-group" tabindex="-1" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -89,4 +89,6 @@
         </div>
     </div>
 </div>
+{%- endif -%}
+
 {% endblock %}
