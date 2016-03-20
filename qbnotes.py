@@ -96,13 +96,20 @@ def login_required(level):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if session.get('user'):
-                if session['user'].level < level:
+                if session['user']['level'] < level:
                     abort(403)
             else:
                 return redirect(url_for('login'))
             return f(*args, **kwargs)
         return decorated_function
     return login_decorator
+
+
+def check_params(*reqd):
+    for param in reqd:
+        if not requests.form[param]:
+            abort(400)
+    return requests.form
 
 
 # main app pages
@@ -130,10 +137,9 @@ def entry_detail(entry_id):
 @app.route('/group/new', methods=['POST'])
 @login_required(User.ADMIN)
 def new_group():
-    if not request.form['name']:
-        abort(400)
+    param = check_params('name')
 
-    g = Group(request.form['name'])
+    g = Group(param['name'])
     db.session.add(g)
     db.session.commit()
 
@@ -146,11 +152,9 @@ def new_entry(group_id):
     g = Group.query.get_or_404(group_id)
 
     if request.method == 'POST':
-        if not (request.form['title'] and request.form['creator'] and request.form['notes']):
-            abort(400)
+        params = check_params('title', 'creator', 'notes')
 
-        e = Entry(request.form['title'],
-                  request.form['creator'], request.form['notes'], g)
+        e = Entry(params['title'], params['creator'], params['notes'], g)
         db.session.add(e)
         db.session.commit()
 
@@ -165,12 +169,11 @@ def edit_entry(entry_id):
     e = Entry.query.get_or_404(entry_id)
 
     if request.method == 'POST':
-        if not (request.form['title'] and request.form['creator'] and request.form['notes']):
-            abort(400)
+        params = check_params('title', 'creator', 'notes')
 
-        e.title = request.form['title']
-        e.creator = request.form['creator']
-        e.notes = request.form['notes']
+        e.title = params['title']
+        e.creator = params['creator']
+        e.notes = params['notes']
 
         db.session.commit()
 
@@ -183,12 +186,11 @@ def edit_entry(entry_id):
 def login():
     error = None
     if request.method == 'POST':
-        if not (request.form['username'] and request.form['password']):
-            abort(400)
+        params = check_params('username', 'password')
 
-        user = User.query.filter_by(name=request.form['username']).first()
+        user = User.query.filter_by(name=params['username']).first()
         if user:
-            if user.check_pass(request.form['password']):
+            if user.check_pass(params['password']):
                 # session data needs to be JSON-serializable
                 session['user'] = {'name': user.name, 'level': user.level}
                 return redirect(url_for('all_groups'))
