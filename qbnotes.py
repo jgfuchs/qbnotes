@@ -246,7 +246,7 @@ def search(group_id):
     if not query:
         return redirect(url_for('group_detail', group_id=group_id))
     results = Entry.query.filter(
-        Entry.group_id == group_id, Entry.notes.like('%{}%'.format(query)))
+        Entry.group_id == group_id, Entry.notes.ilike('%{}%'.format(query)))
     return render_template('search.html', group=g, results=results, query=query)
 
 
