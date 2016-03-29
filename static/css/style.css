@@ -5,3 +5,12 @@ body {
 .container {
     padding: 0 10px 0 10px;
 }
+
+#table-search {
+    width: 64%;
+    display: inline;
+}
+
+#num-results {
+    margin-left: 1em;
+}

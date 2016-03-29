@@ -27,8 +27,8 @@
 
 <form action="{{ url_for('search', group_id=group.id) }}" method="get">
     <button type="submit" class="btn btn-default" title="Search"><span class="glyphicon glyphicon-search"></span></button>
-    <input type="text" name="q" id="table-search" class="form-control" placeholder="Search..." style="width: 60%; display: inline;" accesskey="f" />
-    <span id="num-results" style="margin-left: 1em;">{{ group.entries.count() }}</span>
+    <input type="text" name="q" id="table-search" class="form-control" placeholder="Search..." accesskey="f" />
+    <span id="num-results"></span>
 </form>
 
 <br />
@@ -66,8 +66,8 @@
 
 {%- block script -%}
 <script>
-    $("#table-search").keyup(function() {
-        var q = this.value.toLowerCase();
+    function doSearch() {
+        var q = $("#table-search")[0].value.toLowerCase();
 
         var rows = $("tbody").find("tr");
         if (q == "") {
@@ -80,6 +80,9 @@
         }
 
         $("#num-results").html(rows.filter(":visible").length);
-    });
+    }
+
+    $(document).ready(doSearch);
+    $("#table-search").keyup(doSearch);
 </script>
 {%- endblock -%}
