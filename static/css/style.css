@@ -14,3 +14,10 @@ body {
 #num-results {
     margin-left: 1em;
 }
+
+.metadata {
+    margin-left: 1em;
+    font-style: italic;
+    color: #555;
+    font-size: 90%;
+}

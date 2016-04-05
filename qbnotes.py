@@ -15,9 +15,9 @@ from sqlalchemy.sql import func, label, desc
 if os.environ.get('HEROKU') == '1':
     db_uri = os.environ['DATABASE_URL']
     skey = os.environ['SECRET_KEY']
-else:
+else:   # development environment
     db_uri = 'sqlite:///db.sqlite3'
-    skey = os.urandom(16)
+    skey = '57c4bcb7897eefa75f0d791dd06bcfa1'
 
 app = Flask(__name__)
 app.config.update(dict(
@@ -355,8 +355,8 @@ def upload():
                     if entry:
                         entry.notes = obj['notes']
                     else:
-                        db.session.add(Entry(title, obj['creator'],
-                                             obj['notes'], group))
+                        new = Entry(title, obj['creator'], obj['notes'], group)
+                        db.session.add(new)
 
             db.session.commit()
         except ValueError:

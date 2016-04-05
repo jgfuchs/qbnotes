@@ -17,8 +17,13 @@
   </div>
 </div>
 
+<span class="metadata">
+  Created {{ entry.date_added }}
+</span>
+
 {% if is_writer() %}
-<a class="btn btn-default pull-right" accesskey="e" href="{{ url_for('edit_entry', entry_id=entry.id) }}" title="Edit (Alt-e)">
+<a class="btn btn-default pull-right" accesskey="e"
+  href="{{ url_for('edit_entry', entry_id=entry.id) }}" title="Edit (Alt-e)">
   <span class="glyphicon glyphicon-pencil"></span> Edit
 </a>
 {% endif %}
