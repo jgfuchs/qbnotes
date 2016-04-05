@@ -1,5 +1,4 @@
 {% extends "layout.html" %}
-
 {% set page_title='Editing: '+ entry.title %}
 
 {% block head %}
@@ -8,60 +7,60 @@
 
 {% block body %}
 <ol class="breadcrumb">
-    <li><a href="{{ url_for('all_groups') }}">Home</a></li>
-    <li><a href="{{ url_for('group_detail', group_id=entry.group.id) }}">{{ entry.group.name }}</a></li>
-    <li><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></li>
-    <li class="active">[editing]</li>
+  <li><a href="{{ url_for('all_groups') }}">Home</a></li>
+  <li><a href="{{ url_for('group_detail', group_id=entry.group.id) }}">{{ entry.group.name }}</a></li>
+  <li><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></li>
+  <li class="active">[editing]</li>
 </ol>
 
 <form role="form" action="{{ url_for('edit_entry', entry_id=entry.id) }}" method="post">
-    <div class="form-group">
-        <label>Title</label>
-        <input type="text" class="form-control" name="title" required value="{{ entry.title }}" />
+  <div class="form-group">
+    <label>Title</label>
+    <input type="text" class="form-control" name="title" required value="{{ entry.title }}" />
+  </div>
+
+  <div class="form-group">
+    <label>Creator</label>
+    <input type="text" class="form-control" name="creator" required value="{{ entry.creator }}" />
+  </div>
+
+  <div class="form-group">
+    <label>Notes</label>
+    <textarea class="form-control" name="notes" rows="10" id="notes-input" required autofocus>{{ entry.notes }}</textarea>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div id="preview-area"></div>
     </div>
+  </div>
 
-    <div class="form-group">
-        <label>Creator</label>
-        <input type="text" class="form-control" name="creator" required value="{{ entry.creator }}" />
-    </div>
+  <a class="btn btn-danger" href="{{ url_for('entry_detail', entry_id=entry.id) }}" title="Cancel (Alt-x)" accesskey="x">
+    <span class="glyphicon glyphicon-remove"></span> Cancel
+  </a>
 
-    <div class="form-group">
-        <label>Notes</label>
-        <textarea class="form-control" name="notes" rows="10" id="notes-input" required autofocus>{{ entry.notes }}</textarea>
-    </div>
-
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <div id="preview-area"></div>
-        </div>
-    </div>
-
-    <a class="btn btn-danger" href="{{ url_for('entry_detail', entry_id=entry.id) }}" title="Cancel (Alt-x)" accesskey="x">
-        <span class="glyphicon glyphicon-remove"></span> Cancel
-    </a>
-
-    <button type="submit" class="btn btn-success pull-right" accesskey="s" title="Save (Alt-s)">
-        <span class="glyphicon glyphicon-ok"></span> Save
-    </button>
+  <button type="submit" class="btn btn-success pull-right" accesskey="s" title="Save (Alt-s)">
+    <span class="glyphicon glyphicon-ok"></span> Save
+  </button>
 </form>
 {% endblock %}
 
 {% block script %}
 <script>
-    tout = null;
+  tout = null;
 
-    $("#notes-input").bind("input propertychange", function(e) {
-        if (tout) {
-            clearTimeout(tout);
-        }
-
-        tout = setTimeout(renderMarkdown, 1000);
-    });
-
-    function renderMarkdown() {
-        $("#preview-area").html(marked($("#notes-input").val()));
+  $("#notes-input").bind("input propertychange", function(e) {
+    if (tout) {
+      clearTimeout(tout);
     }
 
-    renderMarkdown();
+    tout = setTimeout(renderMarkdown, 1000);
+  });
+
+  function renderMarkdown() {
+    $("#preview-area").html(marked($("#notes-input").val()));
+  }
+
+  renderMarkdown();
 </script>
 {% endblock %}

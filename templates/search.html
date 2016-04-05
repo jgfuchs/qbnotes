@@ -1,41 +1,38 @@
 {% extends "layout.html" %}
-
 {% set page_title='Search results' %}
 
 {% block body %}
 <ol class="breadcrumb">
-    <li><a href="{{ url_for('all_groups') }}">Home</a></li>
-    <li><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
-    <li class="active">[search]</li>
+  <li><a href="{{ url_for('all_groups') }}">Home</a></li>
+  <li><a href="{{ url_for('group_detail', group_id=group.id) }}">{{ group.name }}</a></li>
+  <li class="active">[search]</li>
 </ol>
 
 <form action="{{ url_for('search', group_id=group.id) }}" method="get">
-    <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
-    <input type="text" name="q" id="table-search" class="form-control" value="{{ query }}" accesskey="f" autofocus />
-    <span id="num-results">{{ results.count() }}</span>
+  <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+  <input type="text" name="q" id="table-search" class="form-control" value="{{ query }}" accesskey="f" autofocus />
+  <span id="num-results">{{ results.count() }}</span>
 </form>
 
 <br />
 
 <table class="table table-striped table-condensed">
-    <thead>
-        <tr>
-            <th class="col-md-8">Title</th>
-            <th class="col-md-4">Creator</th>
-        </tr>
-    </thead>
+  <thead>
+    <tr>
+      <th class="col-md-8">Title</th>
+      <th class="col-md-4">Creator</th>
+    </tr>
+  </thead>
 
-    <tbody>
-        {% for entry in results|sort(attribute='creator') %}
-        <tr>
-            <td>
-                <strong>
-                    <a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a>
-                </strong>
-            </td>
-            <td>{{ entry.creator }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+  <tbody>
+    {% for entry in results|sort(attribute='creator') %}
+    <tr>
+      <td>
+        <strong><a href="{{ url_for('entry_detail', entry_id=entry.id) }}">{{ entry.title }}</a></strong>
+      </td>
+      <td>{{ entry.creator }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endblock %}

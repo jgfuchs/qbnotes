@@ -1,25 +1,25 @@
 <!doctype html>
 
 <head>
-    <title>{{ page_title }}</title>
+  <title>{{ page_title }}</title>
 
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 
-    {% block head %}{% endblock %}
+  {% block head %}{% endblock %}
 </head>
 
 <body>
-    <div class="container" role="main">
-        {% block body %}{% endblock %}
-    </div>
+  <div class="container" role="main">
+    {% block body %}{% endblock %}
+  </div>
 
-    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
-    {% block script %}{% endblock %}
+  {% block script %}{% endblock %}
 </body>

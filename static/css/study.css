@@ -1,0 +1,28 @@
+html, body, .container {
+    height: 100%;
+}
+
+#clue {
+    height: 40%;
+    font-size: 135%;
+    margin-bottom: 0px;
+}
+
+#answer {
+    height: 30%;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#title {
+    font-size: 200%;
+}
+
+#author {
+    font-size: 175%;
+}
+
+#btn {
+    height: 15%;
+}

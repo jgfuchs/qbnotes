@@ -1,98 +1,97 @@
 {% extends "layout.html" %}
-
 {% set page_title='QB-Notes' %}
 
 {% block body %}
 <ol class="breadcrumb">
-    <li class="active">Home</li>
+  <li class="active">Home</li>
 </ol>
 
 <div class="list-group">
-    {% for group in groups %}
-    <a class="list-group-item" href="{{ url_for('group_detail', group_id=group.id) }}">
-        <strong>{{ group.name }}</strong>
-        <span class="badge">{{ group.entries.count() }}</span>
-    </a>
-    {% endfor %}
+  {% for group in groups %}
+  <a class="list-group-item" href="{{ url_for('group_detail', group_id=group.id) }}">
+    <strong>{{ group.name }}</strong>
+    <span class="badge">{{ group.entries.count() }}</span>
+  </a>
+  {% endfor %}
 </div>
 
-{%- if is_admin() -%}
+{% if is_admin() %}
 <button class="btn btn-default" accesskey="n" data-toggle="modal" data-target="#new-group">
-    <span class="glyphicon glyphicon-plus"></span> New group
+  <span class="glyphicon glyphicon-plus"></span> New group
 </button>
-{%- endif -%}
+{% endif %}
 
 <a class="btn btn-default pull-right" href="{{ url_for('download') }}" style="margin-left: 10px;" target="_blank">
-    <span class="glyphicon glyphicon-cloud-download"></span> Download
+  <span class="glyphicon glyphicon-cloud-download"></span> Download
 </a>
 
-{%- if is_admin() -%}
+{% if is_admin() %}
 <button class="btn btn-default pull-right" data-toggle="modal" data-target="#upload">
-    <span class="glyphicon glyphicon-cloud-upload"></span> Upload
+  <span class="glyphicon glyphicon-cloud-upload"></span> Upload
 </button>
-{%- endif -%}
+{% endif %}
 
 <br />
 <br />
 
 <p class="pull-right">
-    Logged in as <strong>{{ session.user.name }}</strong>
-    (<a href="/logout">logout</a>)
+  Logged in as <strong>{{ session.user.name }}</strong> (
+  <a href="/logout">logout</a>)
 </p>
 
-{%- if is_admin() -%}
+{% if is_admin() %}
 <div class="modal" id="new-group" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="h4 modal-title">New group</span>
-            </div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="h4 modal-title">New group</span>
+      </div>
 
-            <div class="modal-body">
-                <form role="form" action="{{ url_for('new_group') }}" method="post">
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" class="form-control" name="name" autofocus required>
-                    </div>
+      <div class="modal-body">
+        <form role="form" action="{{ url_for('new_group') }}" method="post">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" class="form-control" name="name" autofocus required>
+          </div>
 
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">
-                        <span class="glyphicon glyphicon-remove"></span> Cancel
-                    </button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">
+            <span class="glyphicon glyphicon-remove"></span> Cancel
+          </button>
 
-                    <button type="submit" class="btn btn-success pull-right">
-                        <span class="glyphicon glyphicon-ok"></span> Create
-                    </button>
-                </form>
-            </div>
-        </div>
+          <button type="submit" class="btn btn-success pull-right">
+            <span class="glyphicon glyphicon-ok"></span> Create
+          </button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <div class="modal" id="upload" tabindex="-1" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="h4 modal-title">Upload notes</span>
-            </div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="h4 modal-title">Upload notes</span>
+      </div>
 
-            <div class="modal-body">
-                <form role="form" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
-                    <input type="file" name="file" class="form-control" />
+      <div class="modal-body">
+        <form role="form" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+          <input type="file" name="file" class="form-control" />
 
-                    <br/>
+          <br/>
 
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">
-                        <span class="glyphicon glyphicon-remove"></span> Cancel
-                    </button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">
+            <span class="glyphicon glyphicon-remove"></span> Cancel
+          </button>
 
-                    <button type="submit" class="btn btn-success pull-right">
-                        <span class="glyphicon glyphicon-ok"></span> Upload
-                    </button>
-                </form>
-            </div>
-        </div>
+          <button type="submit" class="btn btn-success pull-right">
+            <span class="glyphicon glyphicon-ok"></span> Upload
+          </button>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
-{%- endif -%}
+{% endif %}
 
 {% endblock %}
