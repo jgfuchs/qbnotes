@@ -167,7 +167,7 @@ def new_entry(group_id):
     if request.method == 'POST':
         params = check_params('title', 'creator', 'notes')
 
-        notes = notes_transform(notes)
+        notes = notes_transform(params['notes'])
         e = Entry(params['title'], params['creator'], notes, g)
         db.session.add(e)
         db.session.commit()
