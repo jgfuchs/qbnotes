@@ -27,7 +27,7 @@
         {% for key in data.keys() | sort %}
             <tr>
                 <td>{{ key }}</td>
-                <td style="text-align: right">{{ data[key] }}&nbsp&nbsp</td>
+                <td style="text-align: right">{{ data[key] }}&nbsp;&nbsp;</td>
                 <td><div style="width: {{ 100*data[key] / maxval }}%" class="bar"></div></td>
             </tr>
         {% endfor %}

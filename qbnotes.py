@@ -118,7 +118,7 @@ def context_processor():
     return {'is_writer': is_writer, 'is_admin': is_admin}
 
 
-def notes_transorm(n):
+def notes_transform(n):
     subs = [(' -- ', u' \u2013 '), ('->', u'\u2192')]
     for a, b in subs:
         n = n.replace(a, b)
@@ -167,7 +167,7 @@ def new_entry(group_id):
     if request.method == 'POST':
         params = check_params('title', 'creator', 'notes')
 
-        notes = notes_transorm(notes)
+        notes = notes_transform(notes)
         e = Entry(params['title'], params['creator'], notes, g)
         db.session.add(e)
         db.session.commit()
@@ -187,7 +187,7 @@ def edit_entry(entry_id):
 
         e.title = params['title']
         e.creator = params['creator']
-        e.notes = notes_transorm(params['notes'])
+        e.notes = notes_transform(params['notes'])
 
         db.session.commit()
 
