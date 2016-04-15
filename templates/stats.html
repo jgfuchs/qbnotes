@@ -2,34 +2,37 @@
 
 {% set page_title=group.name + " stats" %}
 
-{% macro histogram(title, labellabel, datalabel, hist) %}
+{% macro panel(title) %}
+<div class="panel panel-default">
+    <div class="panel-heading">{{ title }}</div>
+    <div class="panel-body">
+        {{ caller() }}
+    </div>
+</div>
+{% endmacro %}
+
+{% macro histogram(labellabel, hist) %}
     {% set data = hist[0] %}
     {% set maxval = hist[1] %}
-    <div class="panel panel-default">
-        <div class="panel-heading">{{ title }}</div>
-        <div class="panel-body">
-            {{ caller() }}
-            <table style="width: 100%;">
-                <thead>
-                <tr>
-                    <th width="10%">{{ labellabel }}</th>
-                    <th width="5%;">{{ datalabel }}</th>
-                    <th></th>
-                </tr>
-                </thead>
+    <table style="width: 100%;">
+        <thead>
+        <tr>
+            <th width="10%">{{ labellabel }}</th>
+            <th width="5%;" style="text-align: right">#&nbsp;&nbsp;</th>
+            <th></th>
+        </tr>
+        </thead>
 
-                <tbody>
-                {% for key in data.keys() | sort %}
-                    <tr>
-                        <td>{{ key }}</td>
-                        <td style="text-align: right">{{ data[key] }}&nbsp&nbsp</td>
-                        <td><div style="width: {{ 100*data[key] / maxval }}%" class="bar"></div></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <tbody>
+        {% for key in data.keys() | sort %}
+            <tr>
+                <td>{{ key }}</td>
+                <td style="text-align: right">{{ data[key] }}&nbsp&nbsp</td>
+                <td><div style="width: {{ 100*data[key] / maxval }}%" class="bar"></div></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endmacro %}
 
 {% block head %}
@@ -55,20 +58,21 @@
         </div>
     </div>
 
-    {% call histogram("Works per creator", "Works", "Count", stats['nworks_hist']) %}
-        <strong>Avg works/creator:</strong> {{ (stats['nworks']/stats['ncreators']) | round(3)}} <br/> <br/>
-        <strong>Top creators:</strong>
-        {% for e in stats['creators'][:20] %}
-            {{ e[0] }} ({{ e[1] }}){% if not loop.last %},{% endif %}
-        {% endfor %}
-        <br/><br/>
+    {% call panel("Works per creator") %}
+      <strong>Avg works/creator:</strong> {{ (stats['nworks']/stats['ncreators']) | round(3)}} <br/> <br/>
+      <strong>Top creators:</strong>
+      {% for e in stats['creators'][:20] %}
+          {{ e[0] }} ({{ e[1] }}){% if not loop.last %},{% endif %}
+      {% endfor %}
+      <br/><br/>
+      {{ histogram("Works", stats['nworks_hist']) }}
     {% endcall %}
 
-    {% call histogram("Entries created", "Month", "Count", stats['month_hist']) %}
-
+    {% call panel("Entries created") %}
+      {{ histogram("Month", stats['month_hist']) }}
     {% endcall %}
 
-    {% call histogram("Entry length", "Length", "Count", stats['length_hist']) %}
+    {% call panel("Entry length") %}
         <strong>Total:</strong> {{ (stats['total_len'] / 1024.0) | round(3) }} kB <br/>
         <strong>Average:</strong> {{ stats['avg_len'] }} <br/>
         <strong>Words (est.):</strong> {{ (stats['total_len'] / 6.1) | int }} <br/>
@@ -84,5 +88,7 @@
             {{ n }} ({{ l}}){% if not loop.last %},{% endif %}
         {% endfor %}
         <br/><br/>
+        {{ histogram("Length", stats['length_hist']) }}
     {% endcall %}
+
 {% endblock %}

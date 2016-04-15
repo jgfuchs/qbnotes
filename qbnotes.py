@@ -298,8 +298,7 @@ def stats(group_id):
 
     s['length_hist'] = (length_hist, max(length_hist.values()))
 
-    s['longest'] = sorted(
-        longest.items(), key=operator.itemgetter(1), reverse=True)[:16]
+    s['longest'] = sorted(longest.items(), key=operator.itemgetter(1), reverse=True)[:16]
     s['shortest'] = sorted(longest.items(), key=operator.itemgetter(1))[:16]
     s['total_len'] = total_len
     s['avg_len'] = total_len / g.entries.count()
