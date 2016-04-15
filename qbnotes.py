@@ -118,6 +118,13 @@ def context_processor():
     return {'is_writer': is_writer, 'is_admin': is_admin}
 
 
+def notes_transorm(n):
+    subs = [(' -- ', u' \u2013 '), ('->', u'\u2192')]
+    for a, b in subs:
+        n = n.replace(a, b)
+    return n
+
+
 # main app pages
 
 @app.route('/')
@@ -160,7 +167,8 @@ def new_entry(group_id):
     if request.method == 'POST':
         params = check_params('title', 'creator', 'notes')
 
-        e = Entry(params['title'], params['creator'], params['notes'], g)
+        notes = notes_transorm(notes)
+        e = Entry(params['title'], params['creator'], notes, g)
         db.session.add(e)
         db.session.commit()
 
@@ -179,7 +187,7 @@ def edit_entry(entry_id):
 
         e.title = params['title']
         e.creator = params['creator']
-        e.notes = params['notes']
+        e.notes = notes_transorm(params['notes'])
 
         db.session.commit()
 
@@ -298,7 +306,8 @@ def stats(group_id):
 
     s['length_hist'] = (length_hist, max(length_hist.values()))
 
-    s['longest'] = sorted(longest.items(), key=operator.itemgetter(1), reverse=True)[:16]
+    s['longest'] = sorted(
+        longest.items(), key=operator.itemgetter(1), reverse=True)[:16]
     s['shortest'] = sorted(longest.items(), key=operator.itemgetter(1))[:16]
     s['total_len'] = total_len
     s['avg_len'] = total_len / g.entries.count()
