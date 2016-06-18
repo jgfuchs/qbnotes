@@ -298,10 +298,15 @@ def stats(group_id):
 
     dateformat = cast(func.extract('year', Entry.date_added), types.String) + \
         '-' + cast(func.extract('month', Entry.date_added), types.String)
-
-    months_data = db.session.query(
-        dateformat, func.count(Entry.id)
-    ).filter(Entry.group_id == group_id).group_by(dateformat).all()
+    months_data = (
+        db.session.query(dateformat, func.count(Entry.id))
+        .filter(Entry.group_id == group_id)
+        .group_by(
+            func.extract('year', Entry.date_added),
+            func.extract('month', Entry.date_added)
+        )
+        .all()
+    )
     months_max = max(map(operator.itemgetter(1), months_data))
     s['months_hist'] = Histogram(months_data, months_max)
 
@@ -321,7 +326,7 @@ def stats(group_id):
         func.length(Entry.notes).label("length")
     ).filter(Entry.group_id == group_id).order_by(desc("length")).all()
     s['longest'] = lengths[:16]
-    s['shortest'] = lengths[-16:]
+    s['shortest'] = reversed(lengths[-16:])
     s['total_len'] = sum(map(operator.itemgetter(1), lengths))
     s['avg_len'] = 1.0 * s['total_len'] / s['nworks']
 
