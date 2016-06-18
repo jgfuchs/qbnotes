@@ -1,11 +1,11 @@
-import os
 import json
-import random
 import operator
-from passlib.hash import pbkdf2_sha256
-from collections import defaultdict
+import os
+import random
+from collections import namedtuple
 from datetime import date, datetime
 from functools import wraps
+from passlib.hash import pbkdf2_sha256
 
 from flask import Flask, request, session, redirect, url_for, abort, render_template, Response
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -264,53 +264,61 @@ def stats(group_id):
     g = Group.query.get_or_404(group_id)
 
     s = dict()
+    Histogram = namedtuple('Histogram', ['data', 'maxval'])
+
+    creators = (
+        db.session.query(
+            Entry.creator,
+            func.count(Entry.id).label('nworks')
+        )
+        .filter(Entry.group_id == group_id)
+        .group_by(Entry.creator)
+    )
+
     s['nworks'] = g.entries.count()
-    s['creators'] = db.session.query(Entry.creator, label("works", func.count(Entry.id)))\
-        .filter(Entry.group_id == group_id).group_by(Entry.creator).order_by(desc("works")).all()
-    s['ncreators'] = len(s['creators'])
+    s['ncreators'] = creators.count()
+    s['nworks_top'] = creators.order_by(desc('nworks')).limit(20).all()
 
-    nworks_hist = defaultdict(int)
-    for c in s['creators']:
-        nworks_hist[c[1]] += 1
-    s['nworks_hist'] = (nworks_hist, max(nworks_hist.values()))
+    creators = creators.subquery()
+    nworks_data = db.session.query(
+        creators.c.nworks,
+        func.count(creators.c.nworks)
+    ).group_by(creators.c.nworks).all()
+    nworks_max = max(map(operator.itemgetter(1), nworks_data))
+    s['nworks_hist'] = Histogram(nworks_data, nworks_max)
 
-    month_hist = dict()
-    start = db.session.query(func.min(Entry.date_added)).filter(
-        Entry.group_id == group_id).one()[0]
-    start = (start.year, start.month)
-    today = date.today()
-    today = (today.year, today.month)
-    while start <= today:
-        month_hist["{}-{:02d}".format(*start)] = 0
-        start = (start[0], start[1] + 1)
-        if start[1] > 12:
-            start = (start[0] + 1, 1)
+    months = (
+        db.session.query(
+            func.extract('year', Entry.date_added),
+            func.extract('month', Entry.date_added),
+            func.count(Entry.id)
+        )
+        .filter(Entry.group_id == group_id)
+        .group_by(Entry.date_added).all()
+    )
+    months_data = map(lambda m: ("{}-{}".format(*m), m[2]), months)
+    months_max = max(map(operator.itemgetter(1), months_data))
+    s['months_hist'] = Histogram(months_data, months_max)
 
-    for e in g.entries:
-        month_hist[e.date_added.strftime("%Y-%m")] += 1
+    lengths_data = (
+        db.session.query(
+            func.length(Entry.notes) / 200 * 200,
+            func.count(Entry.id)
+        )
+        .filter(Entry.group_id == group_id)
+        .group_by(func.length(Entry.notes) / 200).all()
+    )
+    lengths_max = max(map(operator.itemgetter(1), lengths_data))
+    s['lengths_hist'] = Histogram(lengths_data, lengths_max)
 
-    s['month_hist'] = (month_hist, max(month_hist.values()))
-
-    length_hist = dict()
-    total_len = 0
-    length_step = 200
-    for i in xrange(18):
-        length_hist[i * length_step] = 0
-
-    longest = dict()
-    for e in g.entries:
-        l = len(e.notes)
-        total_len += l
-        length_hist[int(l / length_step) * length_step] += 1
-        longest[e.title] = l
-
-    s['length_hist'] = (length_hist, max(length_hist.values()))
-
-    s['longest'] = sorted(
-        longest.items(), key=operator.itemgetter(1), reverse=True)[:16]
-    s['shortest'] = sorted(longest.items(), key=operator.itemgetter(1))[:16]
-    s['total_len'] = total_len
-    s['avg_len'] = total_len / g.entries.count()
+    lengths = db.session.query(
+        Entry.title,
+        func.length(Entry.notes).label("length")
+    ).filter(Entry.group_id == group_id).order_by(desc("length")).all()
+    s['longest'] = lengths[:16]
+    s['shortest'] = lengths[-16:]
+    s['total_len'] = sum(map(operator.itemgetter(1), lengths))
+    s['avg_len'] = 1.0 * s['total_len'] / s['nworks']
 
     return render_template('stats.html', group=g, stats=s)
 
