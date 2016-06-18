@@ -302,8 +302,8 @@ def stats(group_id):
         db.session.query(dateformat, func.count(Entry.id))
         .filter(Entry.group_id == group_id)
         .group_by(
-            func.extract('year', Entry.date_added),
-            func.extract('month', Entry.date_added)
+            cast(func.extract('year', Entry.date_added), types.Integer),
+            cast(func.extract('month', Entry.date_added), types.Integer)
         )
         .all()
     )
