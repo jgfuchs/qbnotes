@@ -10,12 +10,14 @@ from passlib.hash import pbkdf2_sha256
 from flask import Flask, request, session, redirect, url_for, abort, render_template, Response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.markdown import Markdown
+from sqlalchemy import cast, types
 from sqlalchemy.sql import func, label, desc
 
 if os.environ.get('HEROKU') == '1':
     db_uri = os.environ['DATABASE_URL']
     skey = os.environ['SECRET_KEY']
-else:   # development environment
+else:
+    # development environment
     db_uri = 'sqlite:///db.sqlite3'
     skey = '57c4bcb7897eefa75f0d791dd06bcfa1'
 
@@ -51,7 +53,9 @@ class Entry(db.Model):
 
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     group = db.relationship('Group',
-                            backref=db.backref('entries', lazy='dynamic', cascade='delete'))
+                            backref=db.backref(
+                                'entries', lazy='dynamic', cascade='delete')
+                            )
 
     def __init__(self, title, creator, notes, group):
         self.title = title
@@ -232,15 +236,20 @@ def study(group_id):
 @login_required(User.READ)
 def get_questions(group_id):
     contents = []
-
-    for e in Entry.query.filter_by(group_id=group_id).order_by(func.random()).limit(10).all():
+    entries = Entry.query.filter_by(group_id=group_id).order_by(
+        func.random()).limit(10).all()
+    for e in entries:
         lines = e.notes.split('---')[0].split('\n')
         for i in xrange(0, 10):
             # strip leading spaces & bullets
             line = random.choice(lines).lstrip(' +')
             if (len(line) >= 16) or ('**' in line):
-                contents.append({'id': e.id, 'title': e.title,
-                                 'creator': e.creator, 'clue': line})
+                contents.append({
+                    'id': e.id,
+                    'title': e.title,
+                    'creator': e.creator,
+                    'clue': line
+                })
                 break
 
     return json.dumps(contents)
@@ -287,16 +296,12 @@ def stats(group_id):
     nworks_max = max(map(operator.itemgetter(1), nworks_data))
     s['nworks_hist'] = Histogram(nworks_data, nworks_max)
 
-    months = (
-        db.session.query(
-            func.extract('year', Entry.date_added),
-            func.extract('month', Entry.date_added),
-            func.count(Entry.id)
-        )
-        .filter(Entry.group_id == group_id)
-        .group_by(Entry.date_added).all()
-    )
-    months_data = map(lambda m: ("{}-{}".format(*m), m[2]), months)
+    dateformat = cast(func.extract('year', Entry.date_added), types.String) + \
+        '-' + cast(func.extract('month', Entry.date_added), types.String)
+
+    months_data = db.session.query(
+        dateformat, func.count(Entry.id)
+    ).filter(Entry.group_id == group_id).group_by(dateformat).all()
     months_max = max(map(operator.itemgetter(1), months_data))
     s['months_hist'] = Histogram(months_data, months_max)
 
@@ -345,9 +350,9 @@ def download():
                 'date': str(e.date_added)
             }
 
+    headers = {'Content-Disposition': 'inline; filename="qbnotes.json"'}
     return Response(json.dumps(obj, indent=4, separators=(',', ': ')),
-                    mimetype='text/json',
-                    headers={'Content-Disposition': 'inline; filename="qbnotes.json"'})
+                    mimetype='text/json', headers=headers)
 
 
 @app.route('/upload', methods=['POST'])
@@ -366,7 +371,9 @@ def upload():
                     obj = doc[group_name][title]
 
                     entry = Entry.query.filter(
-                        Entry.title == title, Entry.creator == obj['creator']).first()
+                        Entry.title == title,
+                        Entry.creator == obj['creator']
+                    ).first()
 
                     if entry:
                         entry.notes = obj['notes']
