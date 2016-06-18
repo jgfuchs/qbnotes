@@ -301,10 +301,10 @@ def stats(group_id):
         func.extract('month', Entry.date_added).label('month')
     ).filter(Entry.group_id == group_id).subquery()
     months = db.session.query(
-        sq.c.year, sq.c.month,
-        func.count(sq.c.year)
-    ).group_by(sq.c.year, sq.c.month).all()
-    months_data = map(lambda m: "{d}-{d}".format(*m), months)
+        months.c.year, months.c.month,
+        func.count(months.c.year)
+    ).group_by(months.c.year, months.c.month).all()
+    months_data = map(lambda m: ("{}-{}".format(*m), m[2]), months)
     months_max = max(map(operator.itemgetter(1), months_data))
     s['months_hist'] = Histogram(months_data, months_max)
 
