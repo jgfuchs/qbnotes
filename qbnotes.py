@@ -298,13 +298,19 @@ def stats(group_id):
 
     months = db.session.query(
         func.extract('year', Entry.date_added).label('year'),
-        func.extract('month', Entry.date_added).label('month')
+        func.extract('month', Entry.date_added).label('month'),
     ).filter(Entry.group_id == group_id).subquery()
-    months = db.session.query(
-        months.c.year, months.c.month,
-        func.count(months.c.year)
-    ).group_by(months.c.year, months.c.month).all()
-    months_data = map(lambda m: ("{}-{}".format(*m), m[2]), months)
+    months = (
+        db.session.query(
+            months.c.year, months.c.month,
+            func.count(months.c.year)
+        )
+        .group_by(months.c.year, months.c.month)
+        .order_by(months.c.year, months.c.month)
+        .all()
+    )
+    # months_data = sorted(months, key=operator.itemgetter(0, 1))
+    months_data = map(lambda m: ("{:d}-{:d}".format(*m), m[2]), months)
     months_max = max(map(operator.itemgetter(1), months_data))
     s['months_hist'] = Histogram(months_data, months_max)
 
