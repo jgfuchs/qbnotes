@@ -296,17 +296,15 @@ def stats(group_id):
     nworks_max = max(map(operator.itemgetter(1), nworks_data))
     s['nworks_hist'] = Histogram(nworks_data, nworks_max)
 
-    dateformat = cast(func.extract('year', Entry.date_added), types.String) + \
-        '-' + cast(func.extract('month', Entry.date_added), types.String)
-    months_data = (
-        db.session.query(dateformat, func.count(Entry.id))
-        .filter(Entry.group_id == group_id)
-        .group_by(
-            cast(func.extract('year', Entry.date_added), types.Integer),
-            cast(func.extract('month', Entry.date_added), types.Integer)
-        )
-        .all()
-    )
+    months = db.session.query(
+        func.extract('year', Entry.date_added).label('year'),
+        func.extract('month', Entry.date_added).label('month')
+    ).filter(Entry.group_id == group_id).subquery()
+    months = db.session.query(
+        sq.c.year, sq.c.month,
+        func.count(sq.c.year)
+    ).group_by(sq.c.year, sq.c.month).all()
+    months_data = map(lambda m: "{d}-{d}".format(*m), months)
     months_max = max(map(operator.itemgetter(1), months_data))
     s['months_hist'] = Histogram(months_data, months_max)
 
