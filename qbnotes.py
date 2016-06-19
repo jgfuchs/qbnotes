@@ -275,6 +275,10 @@ def stats(group_id):
     s = dict()
     Histogram = namedtuple('Histogram', ['data', 'maxval'])
 
+    s['nworks'] = g.entries.count()
+    if s['nworks'] == 0:
+        return redirect(url_for('group_detail', group_id=group_id))
+
     creators = (
         db.session.query(
             Entry.creator,
@@ -284,7 +288,6 @@ def stats(group_id):
         .group_by(Entry.creator)
     )
 
-    s['nworks'] = g.entries.count()
     s['ncreators'] = creators.count()
     s['nworks_top'] = creators.order_by(desc('nworks')).limit(20).all()
 
