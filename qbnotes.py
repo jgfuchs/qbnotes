@@ -361,39 +361,6 @@ def download():
                     mimetype='text/json', headers=headers)
 
 
-@app.route('/upload', methods=['POST'])
-@login_required(User.ADMIN)
-def upload():
-    if request.files['file']:
-        try:
-            doc = json.loads(request.files['file'].read())
-            for group_name in doc:
-                group = Group.query.filter(Group.name == group_name).first()
-                if not group:
-                    group = Group(group_name)
-                    db.session.add(group)
-
-                for title in doc[group_name]:
-                    obj = doc[group_name][title]
-
-                    entry = Entry.query.filter(
-                        Entry.title == title,
-                        Entry.creator == obj['creator']
-                    ).first()
-
-                    if entry:
-                        entry.notes = obj['notes']
-                    else:
-                        new = Entry(title, obj['creator'], obj['notes'], group)
-                        db.session.add(new)
-
-            db.session.commit()
-        except ValueError:
-            pass
-
-    return redirect(url_for('all_groups'))
-
-
 if __name__ == '__main__':
     db.create_all()
     app.run(host='0.0.0.0', debug=True, port=5001)
