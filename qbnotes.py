@@ -1,17 +1,16 @@
 import json
 import operator
-import os
 import random
 from collections import namedtuple
-from datetime import date, datetime
+from datetime import date
 from functools import wraps
-from passlib.hash import pbkdf2_sha256
 
+import os
 from flask import Flask, request, session, redirect, url_for, abort, render_template, Response
-from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.markdown import Markdown
-from sqlalchemy import cast, types
-from sqlalchemy.sql import func, label, desc
+from flask_sqlalchemy import SQLAlchemy
+from passlib.hash import pbkdf2_sha256
+from sqlalchemy.sql import func, desc
 
 if os.environ.get('HEROKU') == '1':
     db_uri = os.environ['DATABASE_URL']
@@ -100,7 +99,9 @@ def login_required(level):
             else:
                 return redirect(url_for('login'))
             return f(*args, **kwargs)
+
         return decorated_function
+
     return login_decorator
 
 
@@ -363,4 +364,4 @@ def download():
 
 if __name__ == '__main__':
     db.create_all()
-    app.run(host='0.0.0.0', debug=True, port=5001)
+    app.run(host='127.0.0.1', debug=True, port=5002)
