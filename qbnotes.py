@@ -7,7 +7,7 @@ from functools import wraps
 
 import os
 from flask import Flask, request, session, redirect, url_for, abort, render_template, Response
-from flask.ext.markdown import Markdown
+from flaskext.markdown import Markdown
 from flask_sqlalchemy import SQLAlchemy
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy.sql import func, desc
